@@ -2,271 +2,994 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Meds keychain</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<title>Meds Keychain</title>
+
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
+
 <style>
-:root{--ink:#14232E;--muted:#586871;--paper:#F2F6F5;--card:#FFFFFF;--line:#D3DDDA;--green:#1F6F5C;--amber:#F2B04A;--red:#A83226;--r:14px}
-*{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font:18px/1.5 "Atkinson Hyperlegible",system-ui,-apple-system,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-main{max-width:480px;margin:0 auto;padding:16px 16px 48px}
-h1{font-size:24px;margin:0}
-h2{font-size:20px;margin:28px 0 10px}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
-button,input{font:inherit;color:inherit}
-button{min-height:52px;padding:0 18px;border-radius:var(--r);border:1.5px solid var(--ink);background:var(--card);font-weight:700;cursor:pointer}
-button.primary{background:var(--green);border-color:var(--green);color:#fff}
-button.small{min-height:40px;padding:0 12px;font-size:16px;border-color:var(--line);color:var(--red)}
-button:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
-.pill{min-height:40px;font-size:15px;border-radius:99px;padding:0 14px;border-color:var(--line)}
-.pill.on{background:var(--green);border-color:var(--green);color:#fff}
-.next{background:var(--ink);color:#fff;border-radius:var(--r);padding:18px 20px;margin-top:18px}
-.next small{color:#B8C7CF;font-size:16px}
-.next .t{font-size:44px;font-weight:700;line-height:1.1;color:var(--amber)}
-.row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:10px}
-.row .grow{flex:1;min-width:0}
-.row b{display:block}
-.row span{color:var(--muted);font-size:16px}
-.time{font-weight:700;font-size:20px}
-.actions{display:flex;gap:10px;margin-top:16px}
-.actions button{flex:1}
-label{display:block;font-weight:700;margin:14px 0 6px}
-input[type=text],input[type=time]{width:100%;min-height:52px;padding:0 12px;border:1.5px solid var(--line);border-radius:var(--r);background:var(--card)}
-.days{display:flex;flex-wrap:wrap;gap:8px}
-.days label{margin:0;font-weight:400}
-.days input{position:absolute;opacity:0}
-.days span{display:inline-block;min-width:48px;text-align:center;padding:10px 0;border:1.5px solid var(--line);border-radius:var(--r);background:var(--card)}
-.days input:checked+span{background:var(--ink);border-color:var(--ink);color:#fff}
-.days input:focus-visible+span{outline:3px solid var(--amber);outline-offset:2px}
-.err{color:var(--red);font-weight:700;min-height:1.5em;margin:8px 0 0}
-.empty{color:var(--muted);padding:6px 0}
-details{margin-top:28px}
-pre{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:10px;font-size:14px;max-height:200px;overflow:auto;white-space:pre-wrap}
-.foot{color:var(--muted);font-size:14px;margin-top:28px}
-#toast{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));max-width:448px;margin:0 auto;background:var(--ink);color:#fff;padding:14px 16px;border-radius:var(--r);display:none}
+:root {
+  --bg: #F5F6F0;
+  --white: #FFFFFF;
+  --green: #456B59;
+  --green-light: #E7EFE8;
+  --dark: #243B30;
+  --text: #29372F;
+  --muted: #89938B;
+  --line: #E6EAE3;
+  --yellow: #F1C879;
+  --red: #B65C50;
+  --radius: 20px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  padding-bottom: 100px;
+}
+
+main {
+  max-width: 520px;
+  margin: auto;
+  padding: 24px 20px;
+}
+
+button, input { font: inherit; }
+
+button {
+  cursor: pointer;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  background: var(--green);
+  color: white;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 21px;
+}
+
+.brand-name {
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.brand-sub {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.connection {
+  border: 1px solid var(--line);
+  border-radius: 30px;
+  background: white;
+  padding: 9px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.connection.on {
+  color: var(--green);
+  background: var(--green-light);
+  border-color: transparent;
+}
+
+h1, h2, h3, p { margin-top: 0; }
+
+h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 31px;
+  font-weight: 400;
+  margin-bottom: 5px;
+}
+
+h2 {
+  font-size: 19px;
+  font-weight: 800;
+  margin-bottom: 15px;
+}
+
+h3 {
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.section {
+  display: none;
+}
+
+.section.active {
+  display: block;
+}
+
+.hero {
+  background: var(--dark);
+  color: white;
+  border-radius: 25px;
+  padding: 23px;
+  margin: 23px 0 17px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: "✳";
+  position: absolute;
+  right: 13px;
+  top: 15px;
+  font-size: 85px;
+  color: rgba(255,255,255,.07);
+}
+
+.hero-label {
+  color: #B7CBBE;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.hero-time {
+  font-size: 43px;
+  font-weight: 800;
+  color: var(--yellow);
+  margin: 10px 0;
+  line-height: 1.1;
+}
+
+.hero-name {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.hero-message {
+  color: #B7CBBE;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+.hero-empty {
+  color: #D4E0D7;
+  margin-top: 15px;
+}
+
+.card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 15px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.stat {
+  background: white;
+  padding: 17px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+}
+
+.stat-number {
+  font-size: 27px;
+  font-weight: 800;
+  color: var(--green);
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.progress-track {
+  background: #E9EEE7;
+  height: 9px;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.progress-fill {
+  background: var(--green);
+  height: 100%;
+  width: 0%;
+  border-radius: 20px;
+}
+
+.btn {
+  border: none;
+  border-radius: 13px;
+  padding: 13px 18px;
+  font-weight: 700;
+  min-height: 46px;
+}
+
+.btn-primary {
+  background: var(--green);
+  color: white;
+}
+
+.btn-light {
+  background: var(--green-light);
+  color: var(--green);
+}
+
+.btn-outline {
+  background: white;
+  color: var(--green);
+  border: 1px solid var(--line);
+}
+
+.btn-danger {
+  color: var(--red);
+  background: #F9ECE9;
+}
+
+.btn-block { width: 100%; }
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-row button { flex: 1; }
+
+.med-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  margin-bottom: 11px;
+}
+
+.med-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 14px;
+  background: var(--green-light);
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.med-info { flex: 1; min-width: 0; }
+
+.med-name {
+  font-weight: 800;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.med-details {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.med-time {
+  font-weight: 800;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.small-delete {
+  border: none;
+  background: transparent;
+  color: var(--red);
+  font-size: 12px;
+  padding: 6px;
+}
+
+label {
+  display: block;
+  font-weight: 700;
+  margin: 16px 0 7px;
+  font-size: 13px;
+}
+
+input[type=text], input[type=time] {
+  width: 100%;
+  min-height: 49px;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 12px;
+  color: var(--text);
+}
+
+input:focus {
+  outline: 2px solid var(--green);
+}
+
+.days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.days label { margin: 0; }
+
+.days input {
+  position: absolute;
+  opacity: 0;
+}
+
+.days span {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  height: 43px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
+  font-size: 12px;
+}
+
+.days input:checked + span {
+  background: var(--green);
+  color: white;
+  border-color: var(--green);
+}
+
+.days input:focus-visible + span {
+  outline: 3px solid var(--yellow);
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 25px 10px;
+  font-size: 13px;
+}
+
+.device-icon {
+  width: 75px;
+  height: 75px;
+  background: var(--green-light);
+  border-radius: 23px;
+  margin: 0 auto 14px;
+  display: grid;
+  place-items: center;
+  font-size: 35px;
+}
+
+.device-center {
+  text-align: center;
+  padding: 15px 5px;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: #D0A05C;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.status-dot.on { background: #4C9A70; }
+
+.device-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.device-row:last-child { border: none; }
+
+.history-item {
+  display: flex;
+  gap: 13px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.history-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--green-light);
+  display: grid;
+  place-items: center;
+}
+
+.history-info { flex: 1; }
+
+.history-date {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.error {
+  color: var(--red);
+  min-height: 20px;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255,255,255,.97);
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 6px calc(12px + env(safe-area-inset-bottom));
+  z-index: 10;
+}
+
+.nav-btn {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 65px;
+}
+
+.nav-btn .nav-icon { font-size: 21px; }
+
+.nav-btn.active { color: var(--green); }
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 26px 0 14px;
+}
+
+.section-heading h2 { margin: 0; }
+
+.toast {
+  position: fixed;
+  bottom: 90px;
+  left: 20px;
+  right: 20px;
+  max-width: 480px;
+  margin: auto;
+  padding: 14px;
+  background: var(--dark);
+  color: white;
+  border-radius: 13px;
+  text-align: center;
+  display: none;
+  z-index: 20;
+  font-size: 13px;
+}
+
+details {
+  margin-top: 25px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+pre {
+  background: #F1F3EF;
+  padding: 12px;
+  border-radius: 12px;
+  max-height: 180px;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-size: 11px;
+}
+
+@media (min-width: 600px) {
+  body { padding-bottom: 100px; }
+}
 </style>
 </head>
+
 <body>
 <main>
-  <header>
-    <h1>Meds keychain</h1>
-    <button id="status" class="pill" type="button">Not connected</button>
-  </header>
 
-  <section class="next" aria-live="polite">
-    <small>Next dose</small>
-    <div class="t" id="nextTime">--:--</div>
-    <div id="nextName">Add a medication to begin</div>
-  </section>
-
-  <div class="actions">
-    <button id="connect" type="button">Connect keychain</button>
-    <button id="sync" class="primary" type="button">Sync keychain</button>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon">✚</div>
+    <div>
+      <div class="brand-name">Meds Keychain</div>
+      <div class="brand-sub">Your daily health companion</div>
+    </div>
   </div>
 
-  <h2>Your medications</h2>
+  <button id="status" class="connection" type="button" onclick="doConnect()">
+    ● Offline
+  </button>
+</header>
+
+<!-- HOME -->
+<section id="home" class="section active">
+
+  <h1 id="greeting">Hello there!</h1>
+  <p class="muted" id="todayDate"></p>
+
+  <div class="hero">
+    <div class="hero-label">YOUR NEXT DOSE</div>
+    <div class="hero-time" id="nextTime">--:--</div>
+    <div class="hero-name" id="nextName">No medication scheduled</div>
+    <div class="hero-message" id="nextMsg">Add a medication to get started</div>
+    <div class="hero-empty" id="countdown"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-number" id="todayCount">0</div>
+      <div class="stat-label">Doses scheduled today</div>
+    </div>
+    <div class="stat">
+      <div class="stat-number" id="takenCount">0/0</div>
+      <div class="stat-label">Confirmed today</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Today's progress</h3>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress"></div>
+    </div>
+    <p class="muted" id="progressText" style="margin:10px 0 0">
+      No doses recorded yet.
+    </p>
+  </div>
+
+  <div class="section-heading">
+    <h2>Today's schedule</h2>
+    <button class="btn btn-light" onclick="showSection('medicines')">View all</button>
+  </div>
+
+  <div id="todayList"></div>
+
+  <div class="card" style="margin-top:22px">
+    <h3>Stay connected</h3>
+    <p class="muted">Make sure your TinyCircuit keychain is synced with your latest medication schedule.</p>
+    <button class="btn btn-primary btn-block" onclick="showSection('device')">
+      Manage my keychain
+    </button>
+  </div>
+
+</section>
+
+<!-- MEDICINES -->
+<section id="medicines" class="section">
+
+  <h1>My medicines</h1>
+  <p class="muted">Manage your medication reminders and schedules.</p>
+
+  <div class="section-heading">
+    <h2>Medication list</h2>
+    <button class="btn btn-primary" onclick="document.getElementById('medForm').scrollIntoView({behavior:'smooth'})">
+      + Add new
+    </button>
+  </div>
+
   <div id="list"></div>
 
-  <h2>Add medication</h2>
-  <div>
-    <label for="name">Name (up to 20 characters)</label>
-    <input id="name" type="text" maxlength="20" autocomplete="off" placeholder="Paracetamol">
-
-    <label for="time">Time</label>
-    <input id="time" type="time">
-
-    <label>Days</label>
-    <div class="days" id="days"></div>
-
-    <label for="msg">Message on the keychain (up to 16 letters)</label>
-    <input id="msg" type="text" maxlength="16" autocomplete="off" placeholder="With food">
-
-    <p class="err" id="err" role="alert"></p>
-    <button id="save" class="primary" type="button" style="width:100%">Save medication</button>
+  <div class="section-heading" id="medForm">
+    <h2>Add medication</h2>
   </div>
 
-  <h2>Taken doses</h2>
-  <div id="history"></div>
+  <div class="card">
+
+    <label for="name">Medication name (20 characters)</label>
+    <input id="name" type="text" maxlength="20" placeholder="e.g. Paracetamol">
+
+    <label for="time">Reminder time</label>
+    <input id="time" type="time">
+
+    <label>Repeat on</label>
+    <div class="days" id="days"></div>
+
+    <label for="msg">Keychain message (16 characters)</label>
+    <input id="msg" type="text" maxlength="16" placeholder="e.g. With food">
+
+    <p class="error" id="err"></p>
+
+    <button class="btn btn-primary btn-block" id="save">
+      Save medication
+    </button>
+
+  </div>
+
+</section>
+
+<!-- HISTORY -->
+<section id="history" class="section">
+
+  <h1>Dose history</h1>
+  <p class="muted">Keep track of doses confirmed on your keychain.</p>
+
+  <div class="card">
+    <h3>Recent activity</h3>
+    <div id="historyList"></div>
+  </div>
+
+  <p class="muted">
+    Dose records are based on confirmations received from your TinyCircuit.
+  </p>
+
+</section>
+
+<!-- DEVICE -->
+<section id="device" class="section">
+
+  <h1>My keychain</h1>
+  <p class="muted">Manage your TinyCircuit medication reminder.</p>
+
+  <div class="card device-center">
+    <div class="device-icon">🔑</div>
+    <h2 style="margin-bottom:5px">Meds Keychain</h2>
+    <p class="muted">Your personal medication companion</p>
+
+    <div style="margin:15px 0;font-weight:700;color:var(--green)" id="deviceStatus">
+      <span class="status-dot"></span> Not connected
+    </div>
+
+    <button class="btn btn-primary btn-block" id="connect">
+      Connect keychain
+    </button>
+    <button class="btn btn-light btn-block" id="sync" style="margin-top:10px">
+      ↻ Sync medication schedule
+    </button>
+  </div>
+
+  <div class="card">
+    <h3>Device information</h3>
+
+    <div class="device-row">
+      <span>Connection</span>
+      <strong id="deviceConnection">Offline</strong>
+    </div>
+
+    <div class="device-row">
+      <span>Saved medications</span>
+      <strong id="deviceMedCount">0</strong>
+    </div>
+
+    <div class="device-row">
+      <span>Last successful sync</span>
+      <strong id="lastSync">Not synced</strong>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>How to use your keychain</h3>
+    <p class="muted">
+      1. Turn on your TinyCircuit device.<br><br>
+      2. Connect using Bluetooth.<br><br>
+      3. Add your medication schedule.<br><br>
+      4. Press Sync to transfer your reminders.<br><br>
+      5. Confirm your dose using the physical keychain button, if configured.
+    </p>
+  </div>
 
   <details>
-    <summary>Debug tools</summary>
-    <div style="margin-top:12px">
-      <label for="raw">Send a raw line</label>
-      <input id="raw" type="text" placeholder="L">
-      <div class="actions"><button id="sendRaw" type="button">Send</button></div>
-      <pre id="log"></pre>
-    </div>
+    <summary>Advanced debugging tools</summary>
+
+    <label for="raw">Send raw Bluetooth command</label>
+    <input type="text" id="raw" placeholder="L">
+
+    <button class="btn btn-light" id="sendRaw" style="margin-top:10px">
+      Send command
+    </button>
+
+    <pre id="log"></pre>
   </details>
 
-  <p class="foot">This is a reminder tool, not medical advice. Follow the instructions from your doctor or pharmacist.</p>
+</section>
+
 </main>
-<div id="toast" role="status"></div>
+
+<!-- BOTTOM NAVIGATION -->
+<nav class="bottom-nav">
+
+  <button class="nav-btn active" data-section="home">
+    <span class="nav-icon">⌂</span>
+    Home
+  </button>
+
+  <button class="nav-btn" data-section="medicines">
+    <span class="nav-icon">✚</span>
+    Medicines
+  </button>
+
+  <button class="nav-btn" data-section="history">
+    <span class="nav-icon">◷</span>
+    History
+  </button>
+
+  <button class="nav-btn" data-section="device">
+    <span class="nav-icon">⌁</span>
+    My Device
+  </button>
+
+</nav>
+
+<div class="toast" id="toast" role="status"></div>
 
 <script>
-// Based on the Web Bluetooth API and the Nordic UART service pattern.
-// Firmware side: TinyCircuits STBLE UART example.
-// UUIDs are the standard Nordic UART ones; verify them against the keychain with a BLE scanner.
+
+// ========================================
+// CONFIGURATION
+// ========================================
 
 const SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
 const RX = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
 const TX = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
 
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const $ = id => document.getElementById(id);
 
-function el(tag, attrs, ...kids) {
-  const e = document.createElement(tag);
-  for (const k in (attrs || {})) e.setAttribute(k, attrs[k]);
-  kids.forEach(c => e.append(c));
-  return e;
-}
+let rx = null;
+let device = null;
+let waiter = null;
+let inbox = '';
+let lastSync = localStorage.getItem('lastSync') || 'Not synced';
 
 function log(m) {
-  const p = $('log');
-  p.textContent += m + '\n';
-  p.scrollTop = p.scrollHeight;
+  $('log').textContent += m + '\n';
 }
-
-let toastTimer;
 
 function toast(m) {
   const t = $('toast');
   t.textContent = m;
   t.style.display = 'block';
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.style.display = 'none', 3500);
+
+  clearTimeout(window.toastTimer);
+
+  window.toastTimer = setTimeout(() => {
+    t.style.display = 'none';
+  }, 3000);
 }
 
-// ---- Data layer (Person 4) ----
+// ========================================
+// LOCAL STORAGE
+// ========================================
 
 const store = {
-  get(k, d) {
+  get(k,d) {
     try {
       const v = localStorage.getItem(k);
       return v ? JSON.parse(v) : d;
-    } catch (e) {
+    } catch(e) {
       return d;
     }
   },
-  set(k, v) {
+
+  set(k,v) {
     try {
-      localStorage.setItem(k, JSON.stringify(v));
-    } catch (e) {
-      log('storage error: ' + e);
+      localStorage.setItem(k,JSON.stringify(v));
+    } catch(e) {
+      log('Storage error: ' + e);
     }
   }
 };
 
 const data = {
+
   listMeds() {
-    return store.get('meds', []).sort((a, b) => a.time.localeCompare(b.time));
+    return store.get('meds',[])
+      .sort((a,b) => a.time.localeCompare(b.time));
   },
 
   addMed(m) {
-    const meds = store.get('meds', []);
+    const meds = store.get('meds',[]);
     const used = new Set(meds.map(x => x.id));
-    let id = 1;
-    while (used.has(id)) id++;
 
-    meds.push({ ...m, id });
-    store.set('meds', meds);
-    return id;
+    let id = 1;
+    while(used.has(id)) id++;
+
+    meds.push({...m,id});
+    store.set('meds',meds);
   },
 
   deleteMed(id) {
-    store.set('meds', store.get('meds', []).filter(m => m.id !== id));
-    store.set('pendingDeletes', [...store.get('pendingDeletes', []), id]);
+    store.set('meds',
+      store.get('meds',[]).filter(m => m.id !== id)
+    );
+
+    store.set('pendingDeletes',[
+      ...store.get('pendingDeletes',[]),id
+    ]);
   },
 
   getHistory() {
-    return store.get('history', []);
+    return store.get('history',[]);
   },
 
-  addTaken(id, ts) {
-    store.set('history', [{ id, ts }, ...store.get('history', [])].slice(0, 50));
+  addTaken(id,ts) {
+    store.set('history',[
+      {id,ts},
+      ...store.get('history',[])
+    ].slice(0,50));
   }
 };
 
-// ---- Bluetooth layer (Person 2) ----
+// ========================================
+// NAVIGATION
+// ========================================
 
-let rx = null, waiter = null, inbox = '';
+function showSection(name) {
+
+  document.querySelectorAll('.section').forEach(s => {
+    s.classList.remove('active');
+  });
+
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.remove('active');
+  });
+
+  $(name).classList.add('active');
+
+  document.querySelector(
+    '[data-section="' + name + '"]'
+  ).classList.add('active');
+
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.querySelectorAll('.nav-btn').forEach(b => {
+  b.addEventListener('click',() => {
+    showSection(b.dataset.section);
+  });
+});
+
+// ========================================
+// BLUETOOTH
+// ========================================
 
 const ble = {
+
   async connect() {
-    if (!navigator.bluetooth) {
-      throw new Error('Web Bluetooth is not available. Open this page in Bluefy.');
+
+    if(!navigator.bluetooth) {
+      throw new Error(
+        'Bluetooth unavailable. Please use a supported browser such as Bluefy.'
+      );
     }
 
-    const device = await navigator.bluetooth.requestDevice({
-      acceptAllDevices: true,
-      optionalServices: [SERVICE]
+    device = await navigator.bluetooth.requestDevice({
+      acceptAllDevices:true,
+      optionalServices:[SERVICE]
     });
 
-    device.addEventListener('gattserverdisconnected', () => {
-      rx = null;
-      setStatus(false);
-    });
+    device.addEventListener(
+      'gattserverdisconnected',
+      () => {
+        rx = null;
+        setStatus(false);
+      }
+    );
 
     const server = await device.gatt.connect();
     const svc = await server.getPrimaryService(SERVICE);
 
     rx = await svc.getCharacteristic(RX);
+
     const tx = await svc.getCharacteristic(TX);
 
     await tx.startNotifications();
 
-    tx.addEventListener('characteristicvaluechanged', e => {
-      onChunk(new TextDecoder().decode(e.target.value));
-    });
+    tx.addEventListener(
+      'characteristicvaluechanged',
+      e => {
+        onChunk(new TextDecoder().decode(e.target.value));
+      }
+    );
 
     setStatus(true);
   },
 
   async write(line) {
+
     const bytes = new TextEncoder().encode(line + '\n');
 
-    for (let i = 0; i < bytes.length; i += 20) {
-      await rx.writeValue(bytes.slice(i, i + 20));
+    for(let i=0;i<bytes.length;i+=20) {
+      await rx.writeValue(bytes.slice(i,i+20));
     }
   }
 };
 
+function setStatus(on) {
+
+  $('status').textContent = on ? '● Connected' : '● Offline';
+  $('status').classList.toggle('on',on);
+
+  $('deviceStatus').innerHTML =
+    '<span class="status-dot ' + (on ? 'on' : '') + '"></span>' +
+    (on ? 'Connected successfully' : 'Not connected');
+
+  $('deviceConnection').textContent =
+    on ? 'Connected' : 'Offline';
+}
+
 function onChunk(chunk) {
+
   inbox += chunk;
+
   let i;
 
-  while ((i = inbox.indexOf('\n')) >= 0) {
-    const line = inbox.slice(0, i).trim();
-    inbox = inbox.slice(i + 1);
+  while((i=inbox.indexOf('\n'))>=0) {
 
-    if (line) onLine(line);
+    const line = inbox.slice(0,i).trim();
+    inbox = inbox.slice(i+1);
+
+    if(line) onLine(line);
   }
 }
 
 function onLine(line) {
-  log('keychain: ' + line);
+
+  log('Keychain: ' + line);
 
   const p = line.split(',');
 
-  if (p[0] === 'K') {
-    data.addTaken(Number(p[1]), Number(p[2]));
+  if(p[0] === 'K') {
+
+    data.addTaken(Number(p[1]),Number(p[2]));
+
     render();
-    toast('Dose taken: recorded');
+
+    toast('Dose confirmation recorded!');
   }
-  else if ((p[0] === 'OK' || p[0] === 'ERR') && waiter) {
+
+  else if((p[0] === 'OK' || p[0] === 'ERR') && waiter) {
     waiter(line);
   }
 }
 
 function sendCmd(line) {
+
   return new Promise(async res => {
+
     const t = setTimeout(() => {
       waiter = null;
       res('timeout');
-    }, 1500);
+    },1500);
 
     waiter = r => {
       clearTimeout(t);
@@ -276,74 +999,135 @@ function sendCmd(line) {
 
     try {
       await ble.write(line);
-      log('sent: ' + line);
+      log('Sent: ' + line);
     }
-    catch (e) {
+
+    catch(e) {
       clearTimeout(t);
       waiter = null;
-      log('write error: ' + e);
+      log('Write error: ' + e);
       res('error');
     }
   });
 }
 
-const dayMask = days => days.reduce((a, d) => a | (1 << d), 0);
+async function doConnect() {
+
+  try {
+    await ble.connect();
+    toast('TinyCircuit connected!');
+  }
+
+  catch(e) {
+    log('Connection error: ' + e.message);
+    toast(e.message);
+  }
+}
+
+// ========================================
+// SYNC
+// ========================================
+
+const dayMask = days =>
+  days.reduce((a,d) => a | (1 << d),0);
 
 async function sync() {
-  if (!rx) {
-    toast('Connect the keychain first');
+
+  if(!rx) {
+    toast('Connect your keychain first');
     return;
   }
 
   let bad = 0;
 
-  const run = async l => {
-    const r = await sendCmd(l);
-    if (!r.startsWith('OK')) bad++;
+  const run = async command => {
+    const r = await sendCmd(command);
+    if(!r.startsWith('OK')) bad++;
   };
 
-  // The keychain shows local time, so send the local clock as a Unix-style number.
-  await run('T,' + (Math.floor(Date.now() / 1000) - new Date().getTimezoneOffset() * 60));
+  const localTime = Math.floor(Date.now()/1000)
+    - new Date().getTimezoneOffset()*60;
 
-  for (const id of store.get('pendingDeletes', [])) {
+  await run('T,' + localTime);
+
+  for(const id of store.get('pendingDeletes',[])) {
     await run('D,' + id);
   }
 
-  store.set('pendingDeletes', []);
+  store.set('pendingDeletes',[]);
 
-  for (const m of data.listMeds()) {
-    await run(['A', m.id, m.time.replace(':', ''), dayMask(m.days), m.name].join(','));
+  for(const m of data.listMeds()) {
 
-    if (m.msg) {
+    await run([
+      'A',
+      m.id,
+      m.time.replace(':',''),
+      dayMask(m.days),
+      m.name
+    ].join(','));
+
+    if(m.msg) {
       await run('M,' + m.id + ',' + m.msg);
     }
   }
 
-  toast(bad ? 'Synced, but ' + bad + ' command(s) failed. Check the debug log.' : 'Keychain updated');
+  if(!bad) {
+    lastSync = new Date().toLocaleString();
+    localStorage.setItem('lastSync',lastSync);
+    toast('Your keychain is updated!');
+  } else {
+    toast(bad + ' command(s) failed. Check debug log.');
+  }
+
+  render();
 }
 
-// ---- Screens (Person 3) ----
+// ========================================
+// DATE AND COUNTDOWN
+// ========================================
 
-function setStatus(on) {
-  const b = $('status');
-  b.textContent = on ? 'Connected' : 'Not connected';
-  b.classList.toggle('on', on);
+function updateDate() {
+
+  const now = new Date();
+
+  $('todayDate').textContent =
+    now.toLocaleDateString('en-SG',{
+      weekday:'long',
+      day:'numeric',
+      month:'long',
+      year:'numeric'
+    });
+
+  const hour = now.getHours();
+
+  $('greeting').textContent =
+    hour < 12 ? 'Good morning!' :
+    hour < 18 ? 'Good afternoon!' :
+    'Good evening!';
 }
 
 function nextDose() {
+
   const now = new Date();
   let best = null;
 
-  for (const m of data.listMeds()) {
-    const [h, mi] = m.time.split(':').map(Number);
+  for(const m of data.listMeds()) {
 
-    for (let d = 0; d < 8; d++) {
+    const [h,mi] = m.time.split(':').map(Number);
+
+    for(let d=0;d<8;d++) {
+
       const t = new Date(now);
-      t.setDate(now.getDate() + d);
-      t.setHours(h, mi, 0, 0);
 
-      if (t > now && m.days.includes(t.getDay())) {
-        if (!best || t < best.t) best = { m, t };
+      t.setDate(now.getDate()+d);
+      t.setHours(h,mi,0,0);
+
+      if(t>now && m.days.includes(t.getDay())) {
+
+        if(!best || t<best.t) {
+          best = {m,t};
+        }
+
         break;
       }
     }
@@ -352,159 +1136,327 @@ function nextDose() {
   return best;
 }
 
-function render() {
+function updateCountdown() {
+
   const n = nextDose();
 
-  $('nextTime').textContent = n ? n.m.time : '--:--';
-  $('nextName').textContent = n
-    ? n.m.name + (n.m.msg ? ': ' + n.m.msg : '')
-    : 'Add a medication to begin';
+  if(!n) {
+    $('countdown').textContent = '';
+    return;
+  }
+
+  const diff = n.t - new Date();
+
+  const hours = Math.floor(diff/3600000);
+  const mins = Math.floor((diff%3600000)/60000);
+
+  $('countdown').textContent =
+    'In ' + hours + ' hours and ' + mins + ' minutes';
+}
+
+// ========================================
+// RENDER HOME
+// ========================================
+
+function renderHome() {
+
+  const meds = data.listMeds();
+  const now = new Date();
+
+  const todayMeds = meds.filter(m =>
+    m.days.includes(now.getDay())
+  );
+
+  const n = nextDose();
+
+  $('nextTime').textContent =
+    n ? n.m.time : '--:--';
+
+  $('nextName').textContent =
+    n ? n.m.name : 'No upcoming medication';
+
+  $('nextMsg').textContent =
+    n ? (n.m.msg || 'Follow your medication instructions') :
+    'Add a medication to get started';
+
+  updateCountdown();
+
+  $('todayCount').textContent = todayMeds.length;
+
+  const todayKey = d => {
+    const x = new Date(d);
+    return x.getFullYear() + '-' +
+      x.getMonth() + '-' + x.getDate();
+  };
+
+  const historyToday = data.getHistory().filter(x =>
+    todayKey(new Date(x.ts*1000)) === todayKey(now)
+  );
+
+  const taken = historyToday.length;
+
+  $('takenCount').textContent =
+    taken + '/' + todayMeds.length;
+
+  const percentage = todayMeds.length
+    ? Math.min(100,taken/todayMeds.length*100)
+    : 0;
+
+  $('progress').style.width = percentage + '%';
+
+  $('progressText').textContent =
+    todayMeds.length
+      ? taken + ' of ' + todayMeds.length + ' scheduled doses confirmed.'
+      : 'No medications scheduled today.';
+
+  const list = $('todayList');
+  list.replaceChildren();
+
+  if(!todayMeds.length) {
+    list.innerHTML =
+      '<div class="card empty">Nothing scheduled for today. Enjoy your day!</div>';
+  }
+
+  todayMeds.forEach(m => {
+
+    const item = document.createElement('div');
+    item.className = 'med-card';
+
+    item.innerHTML = `
+      <div class="med-icon">💊</div>
+      <div class="med-info">
+        <div class="med-name">${escapeHTML(m.name)}</div>
+        <div class="med-details">${escapeHTML(m.msg || 'Medication reminder')}</div>
+      </div>
+      <div class="med-time">${escapeHTML(m.time)}</div>
+    `;
+
+    list.append(item);
+  });
+}
+
+// ========================================
+// RENDER MEDICINES
+// ========================================
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, c => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[c]));
+}
+
+function renderMeds() {
 
   const list = $('list');
   list.replaceChildren();
 
   const meds = data.listMeds();
 
-  if (!meds.length) {
-    list.append(el('p', { class: 'empty' }, 'No medications yet. Add your first one below.'));
+  $('deviceMedCount').textContent = meds.length;
+
+  if(!meds.length) {
+    list.innerHTML =
+      '<div class="card empty">No medications yet. Add your first medication below.</div>';
+    return;
   }
 
   meds.forEach(m => {
-    const del = el('button', {
-      class: 'small',
-      type: 'button',
-      'aria-label': 'Delete ' + m.name
-    }, 'Delete');
 
-    del.onclick = () => {
+    const item = document.createElement('div');
+    item.className = 'med-card';
+
+    const days = m.days.length===7
+      ? 'Every day'
+      : m.days.map(d=>DAYS[d]).join(', ');
+
+    item.innerHTML = `
+      <div class="med-icon">💊</div>
+      <div class="med-info">
+        <div class="med-name">${escapeHTML(m.name)}</div>
+        <div class="med-details">${escapeHTML(days)}</div>
+        <div class="med-details">${escapeHTML(m.msg || 'No instructions')}</div>
+      </div>
+      <div>
+        <div class="med-time">${escapeHTML(m.time)}</div>
+        <button class="small-delete" type="button">Delete</button>
+      </div>
+    `;
+
+    item.querySelector('button').onclick = () => {
+
+      if(!confirm('Delete ' + m.name + '?')) return;
+
       data.deleteMed(m.id);
+
       render();
-      toast('Deleted. Sync to update the keychain.');
+
+      toast('Medication deleted. Sync your keychain.');
     };
 
-    list.append(el('div', { class: 'row' },
-      el('div', { class: 'grow' },
-        el('b', {}, m.name),
-        el('span', {}, m.days.length === 7
-          ? 'Every day'
-          : m.days.map(d => DAYS[d]).join(' ') + (m.msg ? ' · ' + m.msg : '')
-        )
-      ),
-      el('div', { class: 'time' }, m.time),
-      del
-    ));
-  });
-
-  const h = $('history');
-  h.replaceChildren();
-
-  const hist = data.getHistory();
-
-  if (!hist.length) {
-    h.append(el('p', { class: 'empty' }, 'Doses you confirm on the keychain will appear here.'));
-  }
-
-  hist.slice(0, 10).forEach(x => {
-    const med = data.listMeds().find(m => m.id === x.id);
-
-    // The keychain clock holds local time, so read it back as UTC to show the same digits.
-    const when = new Date(x.ts * 1000).toISOString().slice(0, 16).replace('T', ' ');
-
-    h.append(el('div', { class: 'row' },
-      el('div', { class: 'grow' },
-        el('b', {}, med ? med.name : 'Medication ' + x.id)
-      ),
-      el('span', {}, when)
-    ));
+    list.append(item);
   });
 }
 
-// ---- Day selection ----
+// ========================================
+// RENDER HISTORY
+// ========================================
 
-DAYS.forEach((d, i) => {
-  const cb = el('input', {
-    type: 'checkbox',
-    value: i
+function renderHistory() {
+
+  const list = $('historyList');
+  list.replaceChildren();
+
+  const history = data.getHistory();
+
+  if(!history.length) {
+    list.innerHTML =
+      '<p class="empty">No confirmed doses yet. Your keychain confirmations will appear here.</p>';
+    return;
+  }
+
+  history.slice(0,20).forEach(x => {
+
+    const med = data.listMeds().find(m=>m.id===x.id);
+
+    const date = new Date(x.ts*1000);
+
+    const item = document.createElement('div');
+    item.className = 'history-item';
+
+    item.innerHTML = `
+      <div class="history-icon">✓</div>
+      <div class="history-info">
+        <strong>${escapeHTML(med ? med.name : 'Medication ' + x.id)}</strong>
+        <div class="history-date">
+          ${date.toLocaleString()}
+        </div>
+      </div>
+      <span style="color:var(--green);font-size:12px;font-weight:700">Recorded</span>
+    `;
+
+    list.append(item);
   });
+}
 
-  $('days').append(el('label', {}, cb, el('span', {}, d)));
+// ========================================
+// RENDER DEVICE
+// ========================================
+
+function renderDevice() {
+  $('lastSync').textContent = lastSync;
+  $('deviceMedCount').textContent = data.listMeds().length;
+}
+
+// ========================================
+// ADD MEDICATION
+// ========================================
+
+DAYS.forEach((d,i) => {
+
+  const cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.value = i;
+
+  const label = document.createElement('label');
+
+  const span = document.createElement('span');
+  span.textContent = d;
+
+  label.append(cb,span);
+  $('days').append(label);
 });
 
-// ---- Save medication ----
-
 $('save').onclick = () => {
-  // Medication name limit increased from 8 to 20 characters.
-  const name = $('name').value.replace(/[,\n]/g, '').trim().slice(0, 20);
+
+  const name = $('name').value
+    .replace(/[,\n]/g,'')
+    .trim()
+    .slice(0,20);
 
   const time = $('time').value;
 
-  const days = [...document.querySelectorAll('#days input:checked')]
-    .map(c => Number(c.value));
+  const days = [
+    ...document.querySelectorAll('#days input:checked')
+  ].map(c=>Number(c.value));
 
-  const msg = $('msg').value.replace(/[,\n]/g, '').trim().slice(0, 16);
+  const msg = $('msg').value
+    .replace(/[,\n]/g,'')
+    .trim()
+    .slice(0,16);
 
-  const err = $('err');
-
-  if (!name) {
-    err.textContent = 'Enter a name for the medication.';
+  if(!name) {
+    $('err').textContent = 'Please enter a medication name.';
     return;
   }
 
-  if (!time) {
-    err.textContent = 'Choose a time.';
+  if(!time) {
+    $('err').textContent = 'Please select a reminder time.';
     return;
   }
 
-  if (!days.length) {
-    err.textContent = 'Pick at least one day.';
+  if(!days.length) {
+    $('err').textContent = 'Please select at least one day.';
     return;
   }
 
-  err.textContent = '';
+  $('err').textContent = '';
 
-  data.addMed({ name, time, days, msg });
+  data.addMed({name,time,days,msg});
 
   $('name').value = '';
+  $('time').value = '';
   $('msg').value = '';
 
-  document.querySelectorAll('#days input').forEach(c => c.checked = false);
+  document.querySelectorAll('#days input').forEach(c=>{
+    c.checked = false;
+  });
 
   render();
-  toast('Saved. Tap Sync keychain to send it.');
+
+  toast('Medication saved! Sync your keychain to update it.');
 };
 
-// ---- Connect and sync ----
-
-async function doConnect() {
-  try {
-    await ble.connect();
-    toast('Keychain connected');
-  }
-  catch (e) {
-    log('connect error: ' + e.message);
-    toast(e.message);
-  }
-}
-
-$('connect').onclick = doConnect;
-$('status').onclick = doConnect;
-$('sync').onclick = sync;
+// ========================================
+// DEBUG TOOLS
+// ========================================
 
 $('sendRaw').onclick = async () => {
-  if (!rx) {
-    toast('Connect the keychain first');
+
+  if(!rx) {
+    toast('Connect your keychain first');
     return;
   }
 
   const v = $('raw').value.trim();
 
-  if (v) {
-    log('reply: ' + await sendCmd(v));
+  if(v) {
+    log('Reply: ' + await sendCmd(v));
   }
 };
 
+// ========================================
+// INITIALISE
+// ========================================
+
+function render() {
+  updateDate();
+  renderHome();
+  renderMeds();
+  renderHistory();
+  renderDevice();
+}
+
+$('connect').onclick = doConnect;
+$('sync').onclick = sync;
+
 render();
-setInterval(render, 60000);
+
+setInterval(render,60000);
+
 </script>
 </body>
 </html>
