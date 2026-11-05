@@ -1,1461 +1,1150 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meds Keychain</title>
-
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
+/* Original website styling */
 :root {
-  --bg: #F5F6F0;
-  --white: #FFFFFF;
-  --green: #456B59;
-  --green-light: #E7EFE8;
-  --dark: #243B30;
-  --text: #29372F;
-  --muted: #89938B;
-  --line: #E6EAE3;
-  --yellow: #F1C879;
-  --red: #B65C50;
-  --radius: 20px;
+  --cream: #f7f5ef;
+  --sage: #a8bda0;
+  --sage-dark: #718b68;
+  --sage-light: #e8eee4;
+  --ink: #30382e;
+  --muted: #899184;
+  --white: #fff;
+  --border: #e5e7df;
+  --red: #c76f68;
+  --shadow: 0 4px 20px rgba(48,56,46,.06);
 }
-
-* { box-sizing: border-box; }
-
+* { box-sizing:border-box; margin:0; padding:0; }
 body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 15px;
-  padding-bottom: 100px;
+  background:var(--cream);
+  color:var(--ink);
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh;
 }
-
-main {
-  max-width: 520px;
-  margin: auto;
-  padding: 24px 20px;
+button,input,select { font:inherit; }
+button { cursor:pointer; }
+.app { max-width:480px; margin:auto; min-height:100vh; padding-bottom:90px; }
+header {
+  padding:28px 22px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
-
-button, input { font: inherit; }
-
-button {
-  cursor: pointer;
+.logo { font-family:'DM Serif Display',serif; font-size:27px; }
+.logo span { color:var(--sage-dark); }
+.header-status {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:11px;
+  color:var(--muted);
 }
-
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 28px;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.brand-icon {
-  width: 42px;
-  height: 42px;
-  background: var(--green);
-  color: white;
-  border-radius: 14px;
-  display: grid;
-  place-items: center;
-  font-size: 21px;
-}
-
-.brand-name {
-  font-size: 19px;
-  font-weight: 800;
-}
-
-.brand-sub {
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.connection {
-  border: 1px solid var(--line);
-  border-radius: 30px;
-  background: white;
-  padding: 9px 12px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--muted);
-}
-
-.connection.on {
-  color: var(--green);
-  background: var(--green-light);
-  border-color: transparent;
-}
-
-h1, h2, h3, p { margin-top: 0; }
-
-h1 {
-  font-family: 'DM Serif Display', serif;
-  font-size: 31px;
-  font-weight: 400;
-  margin-bottom: 5px;
-}
-
-h2 {
-  font-size: 19px;
-  font-weight: 800;
-  margin-bottom: 15px;
-}
-
-h3 {
-  font-size: 15px;
-  margin-bottom: 6px;
-}
-
-.muted {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.section {
-  display: none;
-}
-
-.section.active {
-  display: block;
-}
-
-.hero {
-  background: var(--dark);
-  color: white;
-  border-radius: 25px;
-  padding: 23px;
-  margin: 23px 0 17px;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero::after {
-  content: "✳";
-  position: absolute;
-  right: 13px;
-  top: 15px;
-  font-size: 85px;
-  color: rgba(255,255,255,.07);
-}
-
-.hero-label {
-  color: #B7CBBE;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-.hero-time {
-  font-size: 43px;
-  font-weight: 800;
-  color: var(--yellow);
-  margin: 10px 0;
-  line-height: 1.1;
-}
-
-.hero-name {
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.hero-message {
-  color: #B7CBBE;
-  font-size: 13px;
-  margin-top: 5px;
-}
-
-.hero-empty {
-  color: #D4E0D7;
-  margin-top: 15px;
-}
-
-.card {
-  background: white;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 18px;
-  margin-bottom: 15px;
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 25px;
-}
-
-.stat {
-  background: white;
-  padding: 17px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-}
-
-.stat-number {
-  font-size: 27px;
-  font-weight: 800;
-  color: var(--green);
-}
-
-.stat-label {
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.progress-track {
-  background: #E9EEE7;
-  height: 9px;
-  border-radius: 20px;
-  overflow: hidden;
-  margin-top: 12px;
-}
-
-.progress-fill {
-  background: var(--green);
-  height: 100%;
-  width: 0%;
-  border-radius: 20px;
-}
-
-.btn {
-  border: none;
-  border-radius: 13px;
-  padding: 13px 18px;
-  font-weight: 700;
-  min-height: 46px;
-}
-
-.btn-primary {
-  background: var(--green);
-  color: white;
-}
-
-.btn-light {
-  background: var(--green-light);
-  color: var(--green);
-}
-
-.btn-outline {
-  background: white;
-  color: var(--green);
-  border: 1px solid var(--line);
-}
-
-.btn-danger {
-  color: var(--red);
-  background: #F9ECE9;
-}
-
-.btn-block { width: 100%; }
-
-.btn-row {
-  display: flex;
-  gap: 10px;
-}
-
-.btn-row button { flex: 1; }
-
-.med-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 15px;
-  background: white;
-  border: 1px solid var(--line);
-  border-radius: 17px;
-  margin-bottom: 11px;
-}
-
-.med-icon {
-  width: 45px;
-  height: 45px;
-  border-radius: 14px;
-  background: var(--green-light);
-  display: grid;
-  place-items: center;
-  font-size: 22px;
-  flex-shrink: 0;
-}
-
-.med-info { flex: 1; min-width: 0; }
-
-.med-name {
-  font-weight: 800;
-  font-size: 15px;
-  overflow-wrap: anywhere;
-}
-
-.med-details {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 4px;
-}
-
-.med-time {
-  font-weight: 800;
-  font-size: 14px;
-  white-space: nowrap;
-}
-
-.small-delete {
-  border: none;
-  background: transparent;
-  color: var(--red);
-  font-size: 12px;
-  padding: 6px;
-}
-
-label {
-  display: block;
-  font-weight: 700;
-  margin: 16px 0 7px;
-  font-size: 13px;
-}
-
-input[type=text], input[type=time] {
-  width: 100%;
-  min-height: 49px;
-  padding: 0 13px;
-  border: 1px solid var(--line);
-  background: white;
-  border-radius: 12px;
-  color: var(--text);
-}
-
-input:focus {
-  outline: 2px solid var(--green);
-}
-
-.days {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
-
-.days label { margin: 0; }
-
-.days input {
-  position: absolute;
-  opacity: 0;
-}
-
-.days span {
-  display: grid;
-  place-items: center;
-  width: 43px;
-  height: 43px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: white;
-  font-size: 12px;
-}
-
-.days input:checked + span {
-  background: var(--green);
-  color: white;
-  border-color: var(--green);
-}
-
-.days input:focus-visible + span {
-  outline: 3px solid var(--yellow);
-}
-
-.empty {
-  text-align: center;
-  color: var(--muted);
-  padding: 25px 10px;
-  font-size: 13px;
-}
-
-.device-icon {
-  width: 75px;
-  height: 75px;
-  background: var(--green-light);
-  border-radius: 23px;
-  margin: 0 auto 14px;
-  display: grid;
-  place-items: center;
-  font-size: 35px;
-}
-
-.device-center {
-  text-align: center;
-  padding: 15px 5px;
-}
-
 .status-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  background: #D0A05C;
-  border-radius: 50%;
-  margin-right: 5px;
+  width:8px;height:8px;border-radius:50%;
+  background:#d4a45c;
 }
-
-.status-dot.on { background: #4C9A70; }
-
-.device-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 13px 0;
-  border-bottom: 1px solid var(--line);
-  font-size: 13px;
+.status-dot.connected { background:#79a878; }
+.status-dot.error { background:var(--red); }
+main { padding:0 18px; }
+.page { display:none; }
+.page.active { display:block; }
+.section-title {
+  font-family:'DM Serif Display',serif;
+  font-size:25px;
+  margin:15px 0 5px;
 }
-
-.device-row:last-child { border: none; }
-
-.history-item {
-  display: flex;
-  gap: 13px;
-  align-items: center;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--line);
+.section-subtitle { font-size:12px;color:var(--muted);margin-bottom:20px; }
+.card {
+  background:var(--white);
+  border-radius:18px;
+  padding:19px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow);
 }
-
-.history-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: var(--green-light);
-  display: grid;
-  place-items: center;
+.card-label {
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:1.2px;
+  color:var(--muted);
+  font-weight:700;
+  margin-bottom:9px;
 }
-
-.history-info { flex: 1; }
-
-.history-date {
-  color: var(--muted);
-  font-size: 12px;
+.next-card {
+  background:var(--sage-light);
+  border-radius:20px;
+  padding:22px;
+  margin-bottom:15px;
 }
-
-.error {
-  color: var(--red);
-  min-height: 20px;
-  font-size: 12px;
-  margin-top: 8px;
+.next-name { font-family:'DM Serif Display',serif;font-size:25px; }
+.next-time { color:var(--sage-dark);font-size:14px;margin-top:5px; }
+.countdown { font-size:12px;color:var(--muted);margin-top:12px; }
+.stats { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px; }
+.stat-card { background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow); }
+.stat-number { font-family:'DM Serif Display',serif;font-size:28px; }
+.stat-label { font-size:11px;color:var(--muted);margin-top:3px; }
+.progress-track { height:7px;background:#e9ebe4;border-radius:10px;overflow:hidden;margin-top:10px; }
+.progress-fill { height:100%;background:var(--sage-dark);border-radius:10px; }
+.med-row {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 0;border-bottom:1px solid var(--border);
 }
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255,255,255,.97);
-  border-top: 1px solid var(--line);
-  display: flex;
-  justify-content: space-around;
-  padding: 12px 6px calc(12px + env(safe-area-inset-bottom));
-  z-index: 10;
+.med-row:last-child { border-bottom:0; }
+.med-name { font-weight:600;font-size:14px; }
+.med-detail { font-size:11px;color:var(--muted);margin-top:3px; }
+.med-time { font-size:13px;font-weight:600; }
+.pill {
+  display:inline-block;padding:5px 9px;border-radius:20px;
+  font-size:10px;font-weight:700;
 }
-
-.nav-btn {
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  font-size: 10px;
-  font-weight: 600;
-  min-width: 65px;
+.pill.pending { background:#f6eedc;color:#a17a36; }
+.pill.taken { background:#e5efe3;color:#62805d; }
+.pill.missed { background:#f5e5e3;color:#b56d66; }
+.btn {
+  border:0;border-radius:12px;padding:12px 17px;
+  background:var(--sage-dark);color:white;font-weight:600;font-size:13px;
 }
-
-.nav-btn .nav-icon { font-size: 21px; }
-
-.nav-btn.active { color: var(--green); }
-
-.section-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 26px 0 14px;
+.btn.secondary { background:var(--sage-light);color:var(--sage-dark); }
+.btn.danger { background:#f5e5e3;color:#b56d66; }
+.btn.full { width:100%; }
+.btn:disabled { opacity:.5;cursor:not-allowed; }
+.form-group { margin-bottom:15px; }
+.form-group label {
+  display:block;font-size:11px;font-weight:700;
+  color:var(--muted);margin-bottom:7px;
 }
-
-.section-heading h2 { margin: 0; }
-
+.form-group input,.form-group select {
+  width:100%;padding:12px 13px;border:1px solid var(--border);
+  border-radius:11px;background:#fff;color:var(--ink);outline:none;
+}
+.form-group input:focus,.form-group select:focus { border-color:var(--sage-dark); }
+.days { display:flex;gap:6px;flex-wrap:wrap; }
+.day-btn {
+  border:1px solid var(--border);background:white;color:var(--muted);
+  width:37px;height:37px;border-radius:50%;font-size:11px;
+}
+.day-btn.selected { background:var(--sage-dark);color:white;border-color:var(--sage-dark); }
+.form-actions { display:flex;gap:9px;margin-top:18px; }
+.form-actions button { flex:1; }
+.empty { text-align:center;padding:30px 15px;color:var(--muted);font-size:13px; }
+nav {
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:480px;background:rgba(255,255,255,.96);
+  border-top:1px solid var(--border);display:flex;
+  justify-content:space-around;padding:11px 8px 17px;z-index:10;
+}
+.nav-item {
+  background:none;border:0;color:var(--muted);font-size:10px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.nav-item .nav-icon { font-size:19px; }
+.nav-item.active { color:var(--sage-dark);font-weight:700; }
+.device-icon {
+  width:55px;height:55px;border-radius:16px;
+  background:var(--sage-light);display:flex;align-items:center;
+  justify-content:center;font-size:26px;margin-bottom:13px;
+}
+.device-status { display:flex;align-items:center;gap:9px;font-size:13px; }
+.device-status .status-dot { flex-shrink:0; }
+.info-row {
+  display:flex;justify-content:space-between;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--border);font-size:12px;
+}
+.info-row:last-child { border-bottom:0; }
+.info-row span:first-child { color:var(--muted); }
 .toast {
-  position: fixed;
-  bottom: 90px;
-  left: 20px;
-  right: 20px;
-  max-width: 480px;
-  margin: auto;
-  padding: 14px;
-  background: var(--dark);
-  color: white;
-  border-radius: 13px;
-  text-align: center;
-  display: none;
-  z-index: 20;
-  font-size: 13px;
+  position:fixed;bottom:85px;left:50%;transform:translateX(-50%);
+  background:var(--ink);color:white;padding:12px 18px;
+  border-radius:12px;font-size:12px;z-index:20;
+  opacity:0;pointer-events:none;transition:.25s;
 }
-
-details {
-  margin-top: 25px;
-  color: var(--muted);
-  font-size: 13px;
+.toast.show { opacity:1; }
+.modal-backdrop {
+  position:fixed;inset:0;background:rgba(30,40,30,.35);
+  display:none;align-items:center;justify-content:center;
+  padding:20px;z-index:30;
 }
-
-pre {
-  background: #F1F3EF;
-  padding: 12px;
-  border-radius: 12px;
-  max-height: 180px;
-  overflow: auto;
-  white-space: pre-wrap;
-  font-size: 11px;
+.modal-backdrop.show { display:flex; }
+.modal {
+  background:var(--cream);border-radius:20px;padding:22px;
+  width:100%;max-width:420px;max-height:85vh;overflow:auto;
 }
-
-@media (min-width: 600px) {
-  body { padding-bottom: 100px; }
+.modal h2 { font-family:'DM Serif Display',serif;font-size:23px;margin-bottom:17px; }
+.small-note { color:var(--muted);font-size:11px;line-height:1.6; }
+@media(min-width:600px) {
+  body { padding:20px 0; }
+  .app { background:var(--cream);border-radius:22px; }
 }
 </style>
 </head>
-
 <body>
-<main>
-
-<header class="topbar">
-  <div class="brand">
-    <div class="brand-icon">✚</div>
-    <div>
-      <div class="brand-name">Meds Keychain</div>
-      <div class="brand-sub">Your daily health companion</div>
+<div class="app">
+  <header>
+    <div class="logo">meds<span>keychain</span></div>
+    <div class="header-status">
+      <span class="status-dot" id="headerStatusDot"></span>
+      <span id="headerStatusText">Local mode</span>
     </div>
-  </div>
+  </header>
 
-  <button id="status" class="connection" type="button" onclick="doConnect()">
-    ● Offline
-  </button>
-</header>
+  <main>
+    <!-- HOME -->
+    <section class="page active" id="page-home">
+      <div class="section-title">Good day!</div>
+      <div class="section-subtitle" id="todayDate"></div>
 
-<!-- HOME -->
-<section id="home" class="section active">
+      <div class="next-card">
+        <div class="card-label">Next medication</div>
+        <div class="next-name" id="nextMedicationName">No upcoming medication</div>
+        <div class="next-time" id="nextMedicationTime">Add a medication to get started</div>
+        <div class="countdown" id="nextCountdown"></div>
+      </div>
 
-  <h1 id="greeting">Hello there!</h1>
-  <p class="muted" id="todayDate"></p>
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-number" id="scheduledCount">0</div>
+          <div class="stat-label">Scheduled today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="takenCount">0</div>
+          <div class="stat-label">Taken today</div>
+        </div>
+      </div>
 
-  <div class="hero">
-    <div class="hero-label">YOUR NEXT DOSE</div>
-    <div class="hero-time" id="nextTime">--:--</div>
-    <div class="hero-name" id="nextName">No medication scheduled</div>
-    <div class="hero-message" id="nextMsg">Add a medication to get started</div>
-    <div class="hero-empty" id="countdown"></div>
-  </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="card-label" style="margin:0">Today's progress</div>
+          <div style="font-size:12px;font-weight:700" id="progressPercent">0%</div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+      </div>
 
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-number" id="todayCount">0</div>
-      <div class="stat-label">Doses scheduled today</div>
-    </div>
-    <div class="stat">
-      <div class="stat-number" id="takenCount">0/0</div>
-      <div class="stat-label">Confirmed today</div>
-    </div>
-  </div>
+      <div class="card">
+        <div class="card-label">Today's medications</div>
+        <div id="todayMedicationList"></div>
+      </div>
+    </section>
 
-  <div class="card">
-    <h3>Today's progress</h3>
-    <div class="progress-track">
-      <div class="progress-fill" id="progress"></div>
-    </div>
-    <p class="muted" id="progressText" style="margin:10px 0 0">
-      No doses recorded yet.
-    </p>
-  </div>
+    <!-- MEDICINES -->
+    <section class="page" id="page-medicines">
+      <div class="section-title">My medicines</div>
+      <div class="section-subtitle">Manage your medication reminders.</div>
+      <button class="btn full" onclick="openMedicationModal()">＋ Add medication</button>
+      <div class="card" style="margin-top:15px">
+        <div id="medicationList"></div>
+      </div>
+    </section>
 
-  <div class="section-heading">
-    <h2>Today's schedule</h2>
-    <button class="btn btn-light" onclick="showSection('medicines')">View all</button>
-  </div>
+    <!-- HISTORY -->
+    <section class="page" id="page-history">
+      <div class="section-title">History</div>
+      <div class="section-subtitle">Your medication activity.</div>
+      <div class="card">
+        <div id="historyList"></div>
+      </div>
+    </section>
 
-  <div id="todayList"></div>
+    <!-- DEVICE -->
+    <section class="page" id="page-device">
+      <div class="section-title">My device</div>
+      <div class="section-subtitle">Manage your Meds Keychain connection.</div>
 
-  <div class="card" style="margin-top:22px">
-    <h3>Stay connected</h3>
-    <p class="muted">Make sure your TinyCircuit keychain is synced with your latest medication schedule.</p>
-    <button class="btn btn-primary btn-block" onclick="showSection('device')">
-      Manage my keychain
+      <div class="card">
+        <div class="device-icon">⌁</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:21px;margin-bottom:8px">Meds Keychain</div>
+        <div class="device-status">
+          <span class="status-dot" id="deviceStatusDot"></span>
+          <span id="deviceStatusText">Not connected to cloud</span>
+        </div>
+        <div class="small-note" style="margin-top:10px">
+          Your website synchronises medication information through your cloud backend.
+          The TinyCircuits device connects to the same backend over Wi-Fi.
+        </div>
+        <button class="btn full" style="margin-top:17px" id="syncButton" onclick="sync()">Sync now</button>
+        <button class="btn secondary full" style="margin-top:9px" onclick="checkConnection()">Check connection</button>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Sync information</div>
+        <div class="info-row"><span>Connection</span><strong id="connectionInfo">Local only</strong></div>
+        <div class="info-row"><span>Last sync</span><strong id="lastSyncInfo">Never</strong></div>
+        <div class="info-row"><span>Medications stored</span><strong id="deviceMedCount">0</strong></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">How it works</div>
+        <p class="small-note">
+          1. Add or edit medication details on this website.<br><br>
+          2. The website sends the information to your cloud backend.<br><br>
+          3. Your TinyCircuits device retrieves the latest medication information through Wi-Fi.<br><br>
+          4. The device updates its screen and reminder schedule.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Developer information</div>
+        <p class="small-note">
+          Backend API settings are configured in the JavaScript section of this HTML file.
+          The backend must provide the API routes used by this website.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <nav>
+    <button class="nav-item active" onclick="showPage('home',this)">
+      <span class="nav-icon">⌂</span>Home
     </button>
-  </div>
-
-</section>
-
-<!-- MEDICINES -->
-<section id="medicines" class="section">
-
-  <h1>My medicines</h1>
-  <p class="muted">Manage your medication reminders and schedules.</p>
-
-  <div class="section-heading">
-    <h2>Medication list</h2>
-    <button class="btn btn-primary" onclick="document.getElementById('medForm').scrollIntoView({behavior:'smooth'})">
-      + Add new
+    <button class="nav-item" onclick="showPage('medicines',this)">
+      <span class="nav-icon">▤</span>Medicines
     </button>
-  </div>
-
-  <div id="list"></div>
-
-  <div class="section-heading" id="medForm">
-    <h2>Add medication</h2>
-  </div>
-
-  <div class="card">
-
-    <label for="name">Medication name (20 characters)</label>
-    <input id="name" type="text" maxlength="20" placeholder="e.g. Paracetamol">
-
-    <label for="time">Reminder time</label>
-    <input id="time" type="time">
-
-    <label>Repeat on</label>
-    <div class="days" id="days"></div>
-
-    <label for="msg">Keychain message (16 characters)</label>
-    <input id="msg" type="text" maxlength="16" placeholder="e.g. With food">
-
-    <p class="error" id="err"></p>
-
-    <button class="btn btn-primary btn-block" id="save">
-      Save medication
+    <button class="nav-item" onclick="showPage('history',this)">
+      <span class="nav-icon">◷</span>History
     </button>
+    <button class="nav-item" onclick="showPage('device',this)">
+      <span class="nav-icon">⌁</span>My Device
+    </button>
+  </nav>
+</div>
 
-  </div>
-
-</section>
-
-<!-- HISTORY -->
-<section id="history" class="section">
-
-  <h1>Dose history</h1>
-  <p class="muted">Keep track of doses confirmed on your keychain.</p>
-
-  <div class="card">
-    <h3>Recent activity</h3>
-    <div id="historyList"></div>
-  </div>
-
-  <p class="muted">
-    Dose records are based on confirmations received from your TinyCircuit.
-  </p>
-
-</section>
-
-<!-- DEVICE -->
-<section id="device" class="section">
-
-  <h1>My keychain</h1>
-  <p class="muted">Manage your TinyCircuit medication reminder.</p>
-
-  <div class="card device-center">
-    <div class="device-icon">🔑</div>
-    <h2 style="margin-bottom:5px">Meds Keychain</h2>
-    <p class="muted">Your personal medication companion</p>
-
-    <div style="margin:15px 0;font-weight:700;color:var(--green)" id="deviceStatus">
-      <span class="status-dot"></span> Not connected
+<!-- MEDICATION MODAL -->
+<div class="modal-backdrop" id="medicationModal">
+  <div class="modal">
+    <h2 id="modalTitle">Add medication</h2>
+    <div class="form-group">
+      <label>Medication name (maximum 20 characters)</label>
+      <input id="medName" maxlength="20" placeholder="e.g. Vitamin C">
     </div>
-
-    <button class="btn btn-primary btn-block" id="connect">
-      Connect keychain
-    </button>
-    <button class="btn btn-light btn-block" id="sync" style="margin-top:10px">
-      ↻ Sync medication schedule
-    </button>
-  </div>
-
-  <div class="card">
-    <h3>Device information</h3>
-
-    <div class="device-row">
-      <span>Connection</span>
-      <strong id="deviceConnection">Offline</strong>
+    <div class="form-group">
+      <label>Reminder time</label>
+      <input id="medTime" type="time" value="08:00">
     </div>
-
-    <div class="device-row">
-      <span>Saved medications</span>
-      <strong id="deviceMedCount">0</strong>
+    <div class="form-group">
+      <label>Repeat on</label>
+      <div class="days" id="daySelector">
+        <button class="day-btn selected" data-day="0" onclick="toggleDay(this)">S</button>
+        <button class="day-btn selected" data-day="1" onclick="toggleDay(this)">M</button>
+        <button class="day-btn selected" data-day="2" onclick="toggleDay(this)">T</button>
+        <button class="day-btn selected" data-day="3" onclick="toggleDay(this)">W</button>
+        <button class="day-btn selected" data-day="4" onclick="toggleDay(this)">T</button>
+        <button class="day-btn selected" data-day="5" onclick="toggleDay(this)">F</button>
+        <button class="day-btn selected" data-day="6" onclick="toggleDay(this)">S</button>
+      </div>
     </div>
-
-    <div class="device-row">
-      <span>Last successful sync</span>
-      <strong id="lastSync">Not synced</strong>
+    <div class="form-group">
+      <label>Keychain message (maximum 16 characters)</label>
+      <input id="medMessage" maxlength="16" placeholder="Time for meds!">
+    </div>
+    <div class="form-actions">
+      <button class="btn secondary" onclick="closeMedicationModal()">Cancel</button>
+      <button class="btn" onclick="saveMedication()">Save medication</button>
     </div>
   </div>
+</div>
 
-  <div class="card">
-    <h3>How to use your keychain</h3>
-    <p class="muted">
-      1. Turn on your TinyCircuit device.<br><br>
-      2. Connect using Bluetooth.<br><br>
-      3. Add your medication schedule.<br><br>
-      4. Press Sync to transfer your reminders.<br><br>
-      5. Confirm your dose using the physical keychain button, if configured.
-    </p>
-  </div>
-
-  <details>
-    <summary>Advanced debugging tools</summary>
-
-    <label for="raw">Send raw Bluetooth command</label>
-    <input type="text" id="raw" placeholder="L">
-
-    <button class="btn btn-light" id="sendRaw" style="margin-top:10px">
-      Send command
-    </button>
-
-    <pre id="log"></pre>
-  </details>
-
-</section>
-
-</main>
-
-<!-- BOTTOM NAVIGATION -->
-<nav class="bottom-nav">
-
-  <button class="nav-btn active" data-section="home">
-    <span class="nav-icon">⌂</span>
-    Home
-  </button>
-
-  <button class="nav-btn" data-section="medicines">
-    <span class="nav-icon">✚</span>
-    Medicines
-  </button>
-
-  <button class="nav-btn" data-section="history">
-    <span class="nav-icon">◷</span>
-    History
-  </button>
-
-  <button class="nav-btn" data-section="device">
-    <span class="nav-icon">⌁</span>
-    My Device
-  </button>
-
-</nav>
-
-<div class="toast" id="toast" role="status"></div>
+<div class="toast" id="toast"></div>
 
 <script>
+/* =========================================================
+   MEDS KEYCHAIN - WEBSITE CLOUD API CONFIGURATION
+   ========================================================= */
 
-// ========================================
-// CONFIGURATION
-// ========================================
+/*
+  Replace this empty string with your friend's backend URL
+  once the backend is ready.
 
-const SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-const RX = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
-const TX = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+  Example:
+  const API_BASE_URL = 'https://your-backend-url.com';
+*/
+const API_BASE_URL = '';
 
-const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-const $ = id => document.getElementById(id);
-
-let rx = null;
-let device = null;
-let waiter = null;
-let inbox = '';
-let lastSync = localStorage.getItem('lastSync') || 'Not synced';
-
-function log(m) {
-  $('log').textContent += m + '\n';
-}
-
-function toast(m) {
-  const t = $('toast');
-  t.textContent = m;
-  t.style.display = 'block';
-
-  clearTimeout(window.toastTimer);
-
-  window.toastTimer = setTimeout(() => {
-    t.style.display = 'none';
-  }, 3000);
-}
-
-// ========================================
-// LOCAL STORAGE
-// ========================================
-
-const store = {
-  get(k,d) {
-    try {
-      const v = localStorage.getItem(k);
-      return v ? JSON.parse(v) : d;
-    } catch(e) {
-      return d;
-    }
-  },
-
-  set(k,v) {
-    try {
-      localStorage.setItem(k,JSON.stringify(v));
-    } catch(e) {
-      log('Storage error: ' + e);
-    }
-  }
+/*
+  These are the API routes expected by this website.
+  They must match your friend's backend implementation.
+*/
+const API = {
+  health: '/api/health',
+  medications: '/api/medications',
+  doseHistory: '/api/dose-history'
 };
 
-const data = {
+/* =========================================================
+   LOCAL DATA
+   ========================================================= */
 
-  listMeds() {
-    return store.get('meds',[])
-      .sort((a,b) => a.time.localeCompare(b.time));
-  },
+let meds = JSON.parse(localStorage.getItem('meds') || '[]');
+let pendingDeletes = JSON.parse(localStorage.getItem('pendingDeletes') || '[]');
+let history = JSON.parse(localStorage.getItem('history') || '[]');
+let lastSync = localStorage.getItem('lastSync') || null;
 
-  addMed(m) {
-    const meds = store.get('meds',[]);
-    const used = new Set(meds.map(x => x.id));
+let editingMedicationId = null;
+let cloudConnected = false;
+let syncInProgress = false;
 
-    let id = 1;
-    while(used.has(id)) id++;
+function saveLocalData() {
+  localStorage.setItem('meds', JSON.stringify(meds));
+  localStorage.setItem('pendingDeletes', JSON.stringify(pendingDeletes));
+  localStorage.setItem('history', JSON.stringify(history));
+  localStorage.setItem('lastSync', lastSync || '');
+}
 
-    meds.push({...m,id});
-    store.set('meds',meds);
-  },
+/* =========================================================
+   API HELPERS
+   ========================================================= */
 
-  deleteMed(id) {
-    store.set('meds',
-      store.get('meds',[]).filter(m => m.id !== id)
+function apiConfigured() {
+  return API_BASE_URL.trim().length > 0;
+}
+
+function apiUrl(path) {
+  return API_BASE_URL.replace(/\/$/, '') + path;
+}
+
+async function apiRequest(path, options = {}) {
+  if (!apiConfigured()) {
+    throw new Error('Backend URL has not been configured.');
+  }
+
+  const response = await fetch(apiUrl(path), {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    }
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => '');
+    throw new Error(
+      `API error ${response.status}: ${errorText || response.statusText}`
     );
-
-    store.set('pendingDeletes',[
-      ...store.get('pendingDeletes',[]),id
-    ]);
-  },
-
-  getHistory() {
-    return store.get('history',[]);
-  },
-
-  addTaken(id,ts) {
-    store.set('history',[
-      {id,ts},
-      ...store.get('history',[])
-    ].slice(0,50));
   }
-};
 
-// ========================================
-// NAVIGATION
-// ========================================
+  if (response.status === 204) return null;
 
-function showSection(name) {
+  const contentType = response.headers.get('content-type') || '';
 
-  document.querySelectorAll('.section').forEach(s => {
-    s.classList.remove('active');
-  });
+  if (contentType.includes('application/json')) {
+    return response.json();
+  }
 
-  document.querySelectorAll('.nav-btn').forEach(b => {
-    b.classList.remove('active');
-  });
-
-  $(name).classList.add('active');
-
-  document.querySelector(
-    '[data-section="' + name + '"]'
-  ).classList.add('active');
-
-  render();
-  window.scrollTo({top:0,behavior:'smooth'});
+  return null;
 }
 
-document.querySelectorAll('.nav-btn').forEach(b => {
-  b.addEventListener('click',() => {
-    showSection(b.dataset.section);
-  });
-});
+/* =========================================================
+   CONNECTION STATUS
+   ========================================================= */
 
-// ========================================
-// BLUETOOTH
-// ========================================
+function setCloudStatus(connected, message = '') {
+  cloudConnected = connected;
 
-const ble = {
+  const headerDot = document.getElementById('headerStatusDot');
+  const headerText = document.getElementById('headerStatusText');
+  const deviceDot = document.getElementById('deviceStatusDot');
+  const deviceText = document.getElementById('deviceStatusText');
+  const connectionInfo = document.getElementById('connectionInfo');
 
-  async connect() {
+  headerDot.className = 'status-dot' + (connected ? ' connected' : '');
+  deviceDot.className = 'status-dot' + (connected ? ' connected' : '');
 
-    if(!navigator.bluetooth) {
-      throw new Error(
-        'Bluetooth unavailable. Please use a supported browser such as Bluefy.'
-      );
-    }
-
-    device = await navigator.bluetooth.requestDevice({
-      acceptAllDevices:true,
-      optionalServices:[SERVICE]
-    });
-
-    device.addEventListener(
-      'gattserverdisconnected',
-      () => {
-        rx = null;
-        setStatus(false);
-      }
-    );
-
-    const server = await device.gatt.connect();
-    const svc = await server.getPrimaryService(SERVICE);
-
-    rx = await svc.getCharacteristic(RX);
-
-    const tx = await svc.getCharacteristic(TX);
-
-    await tx.startNotifications();
-
-    tx.addEventListener(
-      'characteristicvaluechanged',
-      e => {
-        onChunk(new TextDecoder().decode(e.target.value));
-      }
-    );
-
-    setStatus(true);
-  },
-
-  async write(line) {
-
-    const bytes = new TextEncoder().encode(line + '\n');
-
-    for(let i=0;i<bytes.length;i+=20) {
-      await rx.writeValue(bytes.slice(i,i+20));
-    }
-  }
-};
-
-function setStatus(on) {
-
-  $('status').textContent = on ? '● Connected' : '● Offline';
-  $('status').classList.toggle('on',on);
-
-  $('deviceStatus').innerHTML =
-    '<span class="status-dot ' + (on ? 'on' : '') + '"></span>' +
-    (on ? 'Connected successfully' : 'Not connected');
-
-  $('deviceConnection').textContent =
-    on ? 'Connected' : 'Offline';
-}
-
-function onChunk(chunk) {
-
-  inbox += chunk;
-
-  let i;
-
-  while((i=inbox.indexOf('\n'))>=0) {
-
-    const line = inbox.slice(0,i).trim();
-    inbox = inbox.slice(i+1);
-
-    if(line) onLine(line);
+  if (!apiConfigured()) {
+    headerText.textContent = 'Local mode';
+    deviceText.textContent = 'Backend not configured';
+    connectionInfo.textContent = 'Local only';
+  } else if (connected) {
+    headerText.textContent = 'Cloud connected';
+    deviceText.textContent = 'Cloud backend connected';
+    connectionInfo.textContent = 'Connected';
+  } else {
+    headerText.textContent = 'Offline';
+    deviceText.textContent = message || 'Unable to connect';
+    connectionInfo.textContent = 'Disconnected';
   }
 }
 
-function onLine(line) {
-
-  log('Keychain: ' + line);
-
-  const p = line.split(',');
-
-  if(p[0] === 'K') {
-
-    data.addTaken(Number(p[1]),Number(p[2]));
-
-    render();
-
-    toast('Dose confirmation recorded!');
+async function checkConnection() {
+  if (!apiConfigured()) {
+    setCloudStatus(false);
+    showToast('Backend URL has not been configured yet.');
+    return false;
   }
-
-  else if((p[0] === 'OK' || p[0] === 'ERR') && waiter) {
-    waiter(line);
-  }
-}
-
-function sendCmd(line) {
-
-  return new Promise(async res => {
-
-    const t = setTimeout(() => {
-      waiter = null;
-      res('timeout');
-    },1500);
-
-    waiter = r => {
-      clearTimeout(t);
-      waiter = null;
-      res(r);
-    };
-
-    try {
-      await ble.write(line);
-      log('Sent: ' + line);
-    }
-
-    catch(e) {
-      clearTimeout(t);
-      waiter = null;
-      log('Write error: ' + e);
-      res('error');
-    }
-  });
-}
-
-async function doConnect() {
 
   try {
-    await ble.connect();
-    toast('TinyCircuit connected!');
-  }
-
-  catch(e) {
-    log('Connection error: ' + e.message);
-    toast(e.message);
+    await apiRequest(API.health);
+    setCloudStatus(true);
+    showToast('Cloud backend connected!');
+    return true;
+  } catch (error) {
+    setCloudStatus(false, 'Connection failed');
+    showToast('Unable to connect to backend.');
+    console.error('Connection check failed:', error);
+    return false;
   }
 }
 
-// ========================================
-// SYNC
-// ========================================
+/* =========================================================
+   DATA NORMALISATION
+   ========================================================= */
 
-const dayMask = days =>
-  days.reduce((a,d) => a | (1 << d),0);
+function normaliseMedication(item) {
+  return {
+    id: String(item.id || item._id || item.medicationId || Date.now()),
+    name: String(item.name || item.medicationName || ''),
+    time: String(item.time || item.reminderTime || '08:00'),
+    days: Array.isArray(item.days)
+      ? item.days.map(Number)
+      : [0,1,2,3,4,5,6],
+    message: String(item.message || item.reminderMessage || 'Time for meds!')
+  };
+}
+
+function normaliseHistory(item) {
+  return {
+    id: String(item.id || item._id || Date.now()),
+    medicationId: String(item.medicationId || ''),
+    medicationName: String(item.medicationName || item.name || 'Medication'),
+    timestamp: item.timestamp || item.takenAt || new Date().toISOString(),
+    status: item.status || 'taken'
+  };
+}
+
+/* =========================================================
+   MEDICATION CLOUD OPERATIONS
+   ========================================================= */
+
+async function uploadMedication(medication) {
+  const path = `${API.medications}/${encodeURIComponent(medication.id)}`;
+
+  return apiRequest(path, {
+    method: 'PUT',
+    body: JSON.stringify(medication)
+  });
+}
+
+async function deleteMedicationFromCloud(id) {
+  const path = `${API.medications}/${encodeURIComponent(id)}`;
+
+  return apiRequest(path, {
+    method: 'DELETE'
+  });
+}
+
+async function fetchMedicationsFromCloud() {
+  const result = await apiRequest(API.medications);
+
+  if (Array.isArray(result)) return result;
+
+  if (result && Array.isArray(result.medications)) {
+    return result.medications;
+  }
+
+  return [];
+}
+
+async function fetchHistoryFromCloud() {
+  const result = await apiRequest(API.doseHistory);
+
+  if (Array.isArray(result)) return result;
+
+  if (result && Array.isArray(result.history)) {
+    return result.history;
+  }
+
+  return [];
+}
+
+/* =========================================================
+   CLOUD SYNCHRONISATION
+   ========================================================= */
 
 async function sync() {
+  if (syncInProgress) return;
 
-  if(!rx) {
-    toast('Connect your keychain first');
+  if (!apiConfigured()) {
+    setCloudStatus(false);
+    showToast('Add your backend URL before syncing.');
     return;
   }
 
-  let bad = 0;
+  syncInProgress = true;
 
-  const run = async command => {
-    const r = await sendCmd(command);
-    if(!r.startsWith('OK')) bad++;
-  };
+  const syncButton = document.getElementById('syncButton');
+  syncButton.disabled = true;
+  syncButton.textContent = 'Syncing...';
 
-  const localTime = Math.floor(Date.now()/1000)
-    - new Date().getTimezoneOffset()*60;
+  try {
+    // Check backend connection.
+    await apiRequest(API.health);
 
-  await run('T,' + localTime);
-
-  for(const id of store.get('pendingDeletes',[])) {
-    await run('D,' + id);
-  }
-
-  store.set('pendingDeletes',[]);
-
-  for(const m of data.listMeds()) {
-
-    await run([
-      'A',
-      m.id,
-      m.time.replace(':',''),
-      dayMask(m.days),
-      m.name
-    ].join(','));
-
-    if(m.msg) {
-      await run('M,' + m.id + ',' + m.msg);
+    // Process medication deletions waiting to sync.
+    for (const id of [...pendingDeletes]) {
+      await deleteMedicationFromCloud(id);
+      pendingDeletes = pendingDeletes.filter(item => item !== id);
+      saveLocalData();
     }
-  }
 
-  if(!bad) {
-    lastSync = new Date().toLocaleString();
-    localStorage.setItem('lastSync',lastSync);
-    toast('Your keychain is updated!');
-  } else {
-    toast(bad + ' command(s) failed. Check debug log.');
-  }
+    // Upload local medication information.
+    for (const medication of meds) {
+      await uploadMedication(medication);
+    }
 
-  render();
+    // Download the latest medication information.
+    const cloudMedications = await fetchMedicationsFromCloud();
+
+    meds = cloudMedications.map(normaliseMedication);
+
+    // Download medication history.
+    const cloudHistory = await fetchHistoryFromCloud();
+
+    history = cloudHistory.map(normaliseHistory);
+
+    lastSync = new Date().toISOString();
+
+    saveLocalData();
+    setCloudStatus(true);
+
+    render();
+    showToast('Synchronisation successful!');
+  } catch (error) {
+    console.error('Synchronisation error:', error);
+    setCloudStatus(false, 'Sync failed');
+    showToast('Sync failed. Please check your connection.');
+  } finally {
+    syncInProgress = false;
+    syncButton.disabled = false;
+    syncButton.textContent = 'Sync now';
+    updateDeviceInformation();
+  }
 }
 
-// ========================================
-// DATE AND COUNTDOWN
-// ========================================
+/* =========================================================
+   AUTOMATIC CLOUD UPLOAD AFTER MEDICATION CHANGES
+   ========================================================= */
 
-function updateDate() {
+async function syncMedicationAfterChange(medication) {
+  if (!apiConfigured()) return;
 
+  try {
+    await uploadMedication(medication);
+    setCloudStatus(true);
+    lastSync = new Date().toISOString();
+    saveLocalData();
+    updateDeviceInformation();
+  } catch (error) {
+    console.error('Medication upload failed:', error);
+    showToast('Saved locally. Cloud upload failed.');
+    setCloudStatus(false, 'Upload failed');
+  }
+}
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+function showPage(page, button) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  document.getElementById('page-' + page).classList.add('active');
+
+  if (button) button.classList.add('active');
+
+  if (page === 'device') updateDeviceInformation();
+  if (page === 'home') renderHome();
+  if (page === 'medicines') renderMedications();
+  if (page === 'history') renderHistory();
+}
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+let toastTimeout;
+
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+
+  clearTimeout(toastTimeout);
+
+  toastTimeout = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2500);
+}
+
+/* =========================================================
+   DATE AND TIME HELPERS
+   ========================================================= */
+
+function getTodayKey() {
   const now = new Date();
 
-  $('todayDate').textContent =
-    now.toLocaleDateString('en-SG',{
+  return [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0')
+  ].join('-');
+}
+
+function formatTime(time) {
+  if (!time) return '';
+
+  const [hours, minutes] = time.split(':').map(Number);
+  const date = new Date();
+
+  date.setHours(hours, minutes, 0, 0);
+
+  return date.toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit'
+  });
+}
+
+function formatDateTime(timestamp) {
+  const date = new Date(timestamp);
+
+  if (Number.isNaN(date.getTime())) return 'Unknown date';
+
+  return date.toLocaleString([], {
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  });
+}
+
+function getDayName(day) {
+  return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][day];
+}
+
+function medicationOccursToday(medication) {
+  return Array.isArray(medication.days) &&
+    medication.days.includes(new Date().getDay());
+}
+
+function isTakenToday(medication) {
+  const today = getTodayKey();
+
+  return history.some(entry => {
+    const entryDate = new Date(entry.timestamp);
+
+    return entry.medicationId === medication.id &&
+      getTodayKeyFromDate(entryDate) === today &&
+      entry.status === 'taken';
+  });
+}
+
+function getTodayKeyFromDate(date) {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    String(date.getDate()).padStart(2, '0')
+  ].join('-');
+}
+
+/* =========================================================
+   HOME DASHBOARD
+   ========================================================= */
+
+function renderHome() {
+  const now = new Date();
+
+  document.getElementById('todayDate').textContent =
+    now.toLocaleDateString([], {
       weekday:'long',
       day:'numeric',
       month:'long',
       year:'numeric'
     });
 
-  const hour = now.getHours();
+  const todaysMeds = meds
+    .filter(medicationOccursToday)
+    .sort((a,b) => a.time.localeCompare(b.time));
 
-  $('greeting').textContent =
-    hour < 12 ? 'Good morning!' :
-    hour < 18 ? 'Good afternoon!' :
-    'Good evening!';
-}
+  const taken = todaysMeds.filter(isTakenToday).length;
 
-function nextDose() {
+  document.getElementById('scheduledCount').textContent = todaysMeds.length;
+  document.getElementById('takenCount').textContent = taken;
 
-  const now = new Date();
-  let best = null;
+  const progress = todaysMeds.length
+    ? Math.round((taken / todaysMeds.length) * 100)
+    : 0;
 
-  for(const m of data.listMeds()) {
+  document.getElementById('progressPercent').textContent = progress + '%';
+  document.getElementById('progressFill').style.width = progress + '%';
 
-    const [h,mi] = m.time.split(':').map(Number);
+  const nextMedication = todaysMeds.find(medication => {
+    if (isTakenToday(medication)) return false;
 
-    for(let d=0;d<8;d++) {
+    const [hours,minutes] = medication.time.split(':').map(Number);
 
-      const t = new Date(now);
+    const scheduled = new Date();
+    scheduled.setHours(hours,minutes,0,0);
 
-      t.setDate(now.getDate()+d);
-      t.setHours(h,mi,0,0);
+    return scheduled >= now;
+  });
 
-      if(t>now && m.days.includes(t.getDay())) {
+  const nextName = document.getElementById('nextMedicationName');
+  const nextTime = document.getElementById('nextMedicationTime');
+  const countdown = document.getElementById('nextCountdown');
 
-        if(!best || t<best.t) {
-          best = {m,t};
-        }
+  if (nextMedication) {
+    nextName.textContent = nextMedication.name;
+    nextTime.textContent = formatTime(nextMedication.time);
 
-        break;
-      }
-    }
+    const [hours,minutes] = nextMedication.time.split(':').map(Number);
+    const scheduled = new Date();
+
+    scheduled.setHours(hours,minutes,0,0);
+
+    const difference = scheduled - now;
+    const totalMinutes = Math.max(0, Math.floor(difference / 60000));
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+
+    countdown.textContent = `In ${h} hours and ${m} minutes`;
+  } else {
+    nextName.textContent = 'No upcoming medication';
+    nextTime.textContent = todaysMeds.length
+      ? 'You have completed or passed today’s reminders.'
+      : 'Add a medication to get started';
+    countdown.textContent = '';
   }
 
-  return best;
+  const list = document.getElementById('todayMedicationList');
+
+  if (!todaysMeds.length) {
+    list.innerHTML = '<div class="empty">No medications scheduled for today.</div>';
+  } else {
+    list.innerHTML = todaysMeds.map(medication => `
+      <div class="med-row">
+        <div>
+          <div class="med-name">${escapeHTML(medication.name)}</div>
+          <div class="med-detail">${formatTime(medication.time)}</div>
+        </div>
+        <span class="pill ${isTakenToday(medication) ? 'taken' : 'pending'}">
+          ${isTakenToday(medication) ? 'Taken' : 'Pending'}
+        </span>
+      </div>
+    `).join('');
+  }
 }
 
-function updateCountdown() {
+/* =========================================================
+   MEDICATION LIST
+   ========================================================= */
 
-  const n = nextDose();
+function renderMedications() {
+  const list = document.getElementById('medicationList');
 
-  if(!n) {
-    $('countdown').textContent = '';
+  if (!meds.length) {
+    list.innerHTML = '<div class="empty">No medications added yet.</div>';
     return;
   }
 
-  const diff = n.t - new Date();
-
-  const hours = Math.floor(diff/3600000);
-  const mins = Math.floor((diff%3600000)/60000);
-
-  $('countdown').textContent =
-    'In ' + hours + ' hours and ' + mins + ' minutes';
+  list.innerHTML = meds.map(medication => `
+    <div class="med-row">
+      <div style="flex:1;min-width:0">
+        <div class="med-name">${escapeHTML(medication.name)}</div>
+        <div class="med-detail">
+          ${formatTime(medication.time)} ·
+          ${medication.days.map(getDayName).join(', ')}
+        </div>
+        <div class="med-detail">${escapeHTML(medication.message)}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="btn secondary" style="padding:8px 10px"
+          onclick="editMedication('${escapeJS(medication.id)}')">Edit</button>
+        <button class="btn danger" style="padding:8px 10px"
+          onclick="deleteMedication('${escapeJS(medication.id)}')">×</button>
+      </div>
+    </div>
+  `).join('');
 }
 
-// ========================================
-// RENDER HOME
-// ========================================
+/* =========================================================
+   MEDICATION MODAL
+   ========================================================= */
 
-function renderHome() {
+function openMedicationModal() {
+  editingMedicationId = null;
 
-  const meds = data.listMeds();
-  const now = new Date();
+  document.getElementById('modalTitle').textContent = 'Add medication';
+  document.getElementById('medName').value = '';
+  document.getElementById('medTime').value = '08:00';
+  document.getElementById('medMessage').value = 'Time for meds!';
 
-  const todayMeds = meds.filter(m =>
-    m.days.includes(now.getDay())
-  );
+  document.querySelectorAll('.day-btn').forEach(button => {
+    button.classList.add('selected');
+  });
 
-  const n = nextDose();
+  document.getElementById('medicationModal').classList.add('show');
+}
 
-  $('nextTime').textContent =
-    n ? n.m.time : '--:--';
+function closeMedicationModal() {
+  document.getElementById('medicationModal').classList.remove('show');
+}
 
-  $('nextName').textContent =
-    n ? n.m.name : 'No upcoming medication';
+function toggleDay(button) {
+  button.classList.toggle('selected');
+}
 
-  $('nextMsg').textContent =
-    n ? (n.m.msg || 'Follow your medication instructions') :
-    'Add a medication to get started';
+function editMedication(id) {
+  const medication = meds.find(item => item.id === id);
 
-  updateCountdown();
+  if (!medication) return;
 
-  $('todayCount').textContent = todayMeds.length;
+  editingMedicationId = id;
 
-  const todayKey = d => {
-    const x = new Date(d);
-    return x.getFullYear() + '-' +
-      x.getMonth() + '-' + x.getDate();
-  };
+  document.getElementById('modalTitle').textContent = 'Edit medication';
+  document.getElementById('medName').value = medication.name;
+  document.getElementById('medTime').value = medication.time;
+  document.getElementById('medMessage').value = medication.message;
 
-  const historyToday = data.getHistory().filter(x =>
-    todayKey(new Date(x.ts*1000)) === todayKey(now)
-  );
+  document.querySelectorAll('.day-btn').forEach(button => {
+    const day = Number(button.dataset.day);
 
-  const taken = historyToday.length;
+    button.classList.toggle('selected', medication.days.includes(day));
+  });
 
-  $('takenCount').textContent =
-    taken + '/' + todayMeds.length;
+  document.getElementById('medicationModal').classList.add('show');
+}
 
-  const percentage = todayMeds.length
-    ? Math.min(100,taken/todayMeds.length*100)
-    : 0;
+function saveMedication() {
+  const name = document.getElementById('medName').value.trim();
+  const time = document.getElementById('medTime').value;
+  const message = document.getElementById('medMessage').value.trim();
 
-  $('progress').style.width = percentage + '%';
+  const days = [...document.querySelectorAll('.day-btn.selected')]
+    .map(button => Number(button.dataset.day));
 
-  $('progressText').textContent =
-    todayMeds.length
-      ? taken + ' of ' + todayMeds.length + ' scheduled doses confirmed.'
-      : 'No medications scheduled today.';
-
-  const list = $('todayList');
-  list.replaceChildren();
-
-  if(!todayMeds.length) {
-    list.innerHTML =
-      '<div class="card empty">Nothing scheduled for today. Enjoy your day!</div>';
+  if (!name) {
+    showToast('Please enter a medication name.');
+    return;
   }
 
-  todayMeds.forEach(m => {
+  if (!time) {
+    showToast('Please select a reminder time.');
+    return;
+  }
 
-    const item = document.createElement('div');
-    item.className = 'med-card';
+  if (!days.length) {
+    showToast('Please select at least one day.');
+    return;
+  }
 
-    item.innerHTML = `
-      <div class="med-icon">💊</div>
-      <div class="med-info">
-        <div class="med-name">${escapeHTML(m.name)}</div>
-        <div class="med-details">${escapeHTML(m.msg || 'Medication reminder')}</div>
-      </div>
-      <div class="med-time">${escapeHTML(m.time)}</div>
-    `;
+  const medication = {
+    id: editingMedicationId || (
+      crypto.randomUUID
+        ? crypto.randomUUID()
+        : String(Date.now())
+    ),
+    name,
+    time,
+    days,
+    message: message || 'Time for meds!'
+  };
 
-    list.append(item);
-  });
+  if (editingMedicationId) {
+    meds = meds.map(item =>
+      item.id === editingMedicationId ? medication : item
+    );
+  } else {
+    meds.push(medication);
+  }
+
+  saveLocalData();
+  closeMedicationModal();
+  render();
+
+  showToast(editingMedicationId
+    ? 'Medication updated.'
+    : 'Medication added.');
+
+  syncMedicationAfterChange(medication);
 }
 
-// ========================================
-// RENDER MEDICINES
-// ========================================
+/* =========================================================
+   DELETE MEDICATION
+   ========================================================= */
+
+async function deleteMedication(id) {
+  const medication = meds.find(item => item.id === id);
+
+  if (!medication) return;
+
+  if (!confirm(`Delete ${medication.name}?`)) return;
+
+  meds = meds.filter(item => item.id !== id);
+
+  if (!pendingDeletes.includes(id)) {
+    pendingDeletes.push(id);
+  }
+
+  saveLocalData();
+  render();
+
+  showToast('Medication deleted.');
+
+  if (apiConfigured()) {
+    try {
+      await deleteMedicationFromCloud(id);
+
+      pendingDeletes = pendingDeletes.filter(item => item !== id);
+
+      saveLocalData();
+    } catch (error) {
+      console.error('Cloud deletion failed:', error);
+      showToast('Deleted locally. Cloud deletion is pending.');
+    }
+  }
+}
+
+/* =========================================================
+   HISTORY
+   ========================================================= */
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+
+  if (!history.length) {
+    list.innerHTML = '<div class="empty">No medication history yet.</div>';
+    return;
+  }
+
+  const sortedHistory = [...history].sort(
+    (a,b) => new Date(b.timestamp) - new Date(a.timestamp)
+  );
+
+  list.innerHTML = sortedHistory.map(entry => `
+    <div class="med-row">
+      <div>
+        <div class="med-name">${escapeHTML(entry.medicationName)}</div>
+        <div class="med-detail">${formatDateTime(entry.timestamp)}</div>
+      </div>
+      <span class="pill ${entry.status === 'taken' ? 'taken' : 'missed'}">
+        ${escapeHTML(entry.status)}
+      </span>
+    </div>
+  `).join('');
+}
+
+/* =========================================================
+   RECORD DOSE CONFIRMATION
+   ========================================================= */
+
+async function recordDoseTaken(medicationId) {
+  const medication = meds.find(item => item.id === medicationId);
+
+  if (!medication) return;
+
+  const entry = {
+    id: crypto.randomUUID
+      ? crypto.randomUUID()
+      : String(Date.now()),
+    medicationId: medication.id,
+    medicationName: medication.name,
+    timestamp: new Date().toISOString(),
+    status: 'taken'
+  };
+
+  history.push(entry);
+
+  saveLocalData();
+  render();
+
+  if (apiConfigured()) {
+    try {
+      await apiRequest(API.doseHistory, {
+        method: 'POST',
+        body: JSON.stringify(entry)
+      });
+    } catch (error) {
+      console.error('Dose confirmation upload failed:', error);
+      showToast('Dose saved locally. Cloud upload failed.');
+    }
+  }
+}
+
+/* =========================================================
+   DEVICE INFORMATION
+   ========================================================= */
+
+function updateDeviceInformation() {
+  document.getElementById('deviceMedCount').textContent = meds.length;
+
+  document.getElementById('lastSyncInfo').textContent = lastSync
+    ? formatDateTime(lastSync)
+    : 'Never';
+}
+
+/* =========================================================
+   HTML ESCAPING
+   ========================================================= */
 
 function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, c => ({
+  return String(value).replace(/[&<>"']/g, character => ({
     '&':'&amp;',
     '<':'&lt;',
     '>':'&gt;',
     '"':'&quot;',
-    "'":'&#39;'
-  }[c]));
+    "'":'&#039;'
+  })[character]);
 }
 
-function renderMeds() {
-
-  const list = $('list');
-  list.replaceChildren();
-
-  const meds = data.listMeds();
-
-  $('deviceMedCount').textContent = meds.length;
-
-  if(!meds.length) {
-    list.innerHTML =
-      '<div class="card empty">No medications yet. Add your first medication below.</div>';
-    return;
-  }
-
-  meds.forEach(m => {
-
-    const item = document.createElement('div');
-    item.className = 'med-card';
-
-    const days = m.days.length===7
-      ? 'Every day'
-      : m.days.map(d=>DAYS[d]).join(', ');
-
-    item.innerHTML = `
-      <div class="med-icon">💊</div>
-      <div class="med-info">
-        <div class="med-name">${escapeHTML(m.name)}</div>
-        <div class="med-details">${escapeHTML(days)}</div>
-        <div class="med-details">${escapeHTML(m.msg || 'No instructions')}</div>
-      </div>
-      <div>
-        <div class="med-time">${escapeHTML(m.time)}</div>
-        <button class="small-delete" type="button">Delete</button>
-      </div>
-    `;
-
-    item.querySelector('button').onclick = () => {
-
-      if(!confirm('Delete ' + m.name + '?')) return;
-
-      data.deleteMed(m.id);
-
-      render();
-
-      toast('Medication deleted. Sync your keychain.');
-    };
-
-    list.append(item);
-  });
+function escapeJS(value) {
+  return String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
-// ========================================
-// RENDER HISTORY
-// ========================================
-
-function renderHistory() {
-
-  const list = $('historyList');
-  list.replaceChildren();
-
-  const history = data.getHistory();
-
-  if(!history.length) {
-    list.innerHTML =
-      '<p class="empty">No confirmed doses yet. Your keychain confirmations will appear here.</p>';
-    return;
-  }
-
-  history.slice(0,20).forEach(x => {
-
-    const med = data.listMeds().find(m=>m.id===x.id);
-
-    const date = new Date(x.ts*1000);
-
-    const item = document.createElement('div');
-    item.className = 'history-item';
-
-    item.innerHTML = `
-      <div class="history-icon">✓</div>
-      <div class="history-info">
-        <strong>${escapeHTML(med ? med.name : 'Medication ' + x.id)}</strong>
-        <div class="history-date">
-          ${date.toLocaleString()}
-        </div>
-      </div>
-      <span style="color:var(--green);font-size:12px;font-weight:700">Recorded</span>
-    `;
-
-    list.append(item);
-  });
-}
-
-// ========================================
-// RENDER DEVICE
-// ========================================
-
-function renderDevice() {
-  $('lastSync').textContent = lastSync;
-  $('deviceMedCount').textContent = data.listMeds().length;
-}
-
-// ========================================
-// ADD MEDICATION
-// ========================================
-
-DAYS.forEach((d,i) => {
-
-  const cb = document.createElement('input');
-  cb.type = 'checkbox';
-  cb.value = i;
-
-  const label = document.createElement('label');
-
-  const span = document.createElement('span');
-  span.textContent = d;
-
-  label.append(cb,span);
-  $('days').append(label);
-});
-
-$('save').onclick = () => {
-
-  const name = $('name').value
-    .replace(/[,\n]/g,'')
-    .trim()
-    .slice(0,20);
-
-  const time = $('time').value;
-
-  const days = [
-    ...document.querySelectorAll('#days input:checked')
-  ].map(c=>Number(c.value));
-
-  const msg = $('msg').value
-    .replace(/[,\n]/g,'')
-    .trim()
-    .slice(0,16);
-
-  if(!name) {
-    $('err').textContent = 'Please enter a medication name.';
-    return;
-  }
-
-  if(!time) {
-    $('err').textContent = 'Please select a reminder time.';
-    return;
-  }
-
-  if(!days.length) {
-    $('err').textContent = 'Please select at least one day.';
-    return;
-  }
-
-  $('err').textContent = '';
-
-  data.addMed({name,time,days,msg});
-
-  $('name').value = '';
-  $('time').value = '';
-  $('msg').value = '';
-
-  document.querySelectorAll('#days input').forEach(c=>{
-    c.checked = false;
-  });
-
-  render();
-
-  toast('Medication saved! Sync your keychain to update it.');
-};
-
-// ========================================
-// DEBUG TOOLS
-// ========================================
-
-$('sendRaw').onclick = async () => {
-
-  if(!rx) {
-    toast('Connect your keychain first');
-    return;
-  }
-
-  const v = $('raw').value.trim();
-
-  if(v) {
-    log('Reply: ' + await sendCmd(v));
-  }
-};
-
-// ========================================
-// INITIALISE
-// ========================================
+/* =========================================================
+   RENDER ALL SECTIONS
+   ========================================================= */
 
 function render() {
-  updateDate();
   renderHome();
-  renderMeds();
+  renderMedications();
   renderHistory();
-  renderDevice();
+  updateDeviceInformation();
 }
 
-$('connect').onclick = doConnect;
-$('sync').onclick = sync;
+/* =========================================================
+   INITIALISE WEBSITE
+   ========================================================= */
 
-render();
+function initialiseApp() {
+  render();
 
-setInterval(render,60000);
+  if (apiConfigured()) {
+    checkConnection();
+  } else {
+    setCloudStatus(false);
+  }
+}
+
+initialiseApp();
+
+/* Refresh dashboard countdown and clock periodically. */
+setInterval(renderHome, 60000);
+
+/* =========================================================
+   OPTIONAL AUTOMATIC CLOUD CHECK
+   ========================================================= */
+
+/*
+  This checks the backend periodically when configured.
+  It does not automatically download all medication data;
+  use the Sync now button to perform a full synchronisation.
+*/
+setInterval(() => {
+  if (apiConfigured() && !syncInProgress) {
+    checkConnection();
+  }
+}, 60000);
 
 </script>
 </body>
