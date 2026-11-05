@@ -14,7 +14,6 @@
  *
  * Medication:
  * - Daily reminder at the selected time
- * - Default schedule: 20:00
  ************************************************************************/
 
 #include <Wireling.h>
@@ -57,9 +56,8 @@ const char medicationName[] = "Vitamin C";
 const char reminderMessage[] = "Time to take meds!";
 
 // ---------- Medication schedule ----------
-// Default: 20:00 (8 PM)
-int scheduleHour = 20;
-int scheduleMinute = 0;
+int scheduleHour = 16;
+int scheduleMinute = 30;
 
 // Used to prevent multiple reminders on the same day
 unsigned long lastReminderDay = 0;
@@ -87,9 +85,9 @@ ScreenState currentScreen = MAIN_SCREEN;
 // ---------- Menu ----------
 const char* menuItems[] = {
   "Next Reminder",
-  "Medication List",
-  "Set Schedule",
-  "Test Reminder",
+  "Meds List",
+  "Set Time",
+  "Test Buzzer",
   "Device Info",
   "Back"
 };
@@ -540,10 +538,10 @@ void showMainScreen() {
   display.clearScreen();
   display.fontColor(0xFFFF, 0x0000);
 
-  display.setCursor(0, 3);
+  display.setCursor(0, 2);
   display.print("MEDS REMINDER");
 
-  display.setCursor(0, 18);
+  display.setCursor(0, 17);
 
   if (timeSynced) {
 
@@ -554,19 +552,15 @@ void showMainScreen() {
             rtc.getMinutes(),
             rtc.getSeconds());
 
-    display.print("Time: ");
     display.print(timeString);
+  } else {
+    display.print("No time sync");
   }
 
-  else {
-    display.print("Time not synced");
-  }
+   display.setCursor(0, 31);
+  display.print("Next:");
 
-  display.setCursor(0, 34);
-  display.print("Reminder:");
-
-  display.setCursor(0, 46);
-
+  display.setCursor(0, 42);
   char scheduleString[6];
 
   sprintf(scheduleString, "%02d:%02d",
@@ -574,8 +568,8 @@ void showMainScreen() {
 
   display.print(scheduleString);
 
-  display.setCursor(0, 57);
-  display.print("> Menu");
+  display.setCursor(0, 55);
+  display.print("L:Menu");
 }
 
 
@@ -604,28 +598,40 @@ void showSyncingScreen() {
 // ======================================================================
 
 void showMenu() {
-
   display.clearScreen();
   display.fontColor(0xFFFF, 0x0000);
 
-  display.setCursor(0, 0);
+  // Header
+  display.setCursor(2, 1);
   display.print("MENU");
 
+  // Header underline
+  display.drawLine(0, 10, 95, 10, 0xFFFF);
+
+  // Menu options
   for (int i = 0; i < MENU_COUNT; i++) {
-
-    int y = 10 + (i * 9);
-
-    display.setCursor(0, y);
+    int y = 12 + (i * 8);
 
     if (i == menuIndex) {
+      // Highlight selected row
+      display.drawRect(
+        0, y, 95, 8,
+        TSRectangleFilled,
+        0xFFFF
+      );
+
+      // Black text on white highlight
+      display.fontColor(0x0000, 0xFFFF);
+      display.setCursor(3, y);
       display.print(">");
-    }
+      display.print(menuItems[i]);
 
-    else {
-      display.print(" ");
+      // Restore white text on black background
+      display.fontColor(0xFFFF, 0x0000);
+    } else {
+      display.setCursor(3, y);
+      display.print(menuItems[i]);
     }
-
-    display.print(menuItems[i]);
   }
 }
 
@@ -742,7 +748,7 @@ void showDeviceInfoScreen() {
   display.print("Meds Keychain");
 
   display.setCursor(0, 38);
-  display.print("Prototype 3");
+  display.print("Prototype");
 
   display.setCursor(0, 55);
   display.print("> Back");
