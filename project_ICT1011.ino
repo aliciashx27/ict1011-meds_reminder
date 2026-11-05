@@ -1,11 +1,10 @@
-
 /************************************************************************
- * Meds Reminder Keychain - Prototype 2
+ * Meds Reminder Keychain - Prototype 3
  * TinyScreen+ + Buzzer Wireling on A1
  *
  * Buttons:
- * - Upper-left: Select / acknowledge reminder
- * - Lower-left: Open menu / move down / back
+ * - Upper-left: Select menu option / acknowledge reminder
+ * - Lower-left: Open menu / scroll down / return to menu
  *
  * Test reminder activates 30 seconds after startup.
  ************************************************************************/
@@ -103,7 +102,7 @@ void loop() {
   // ---------- Handle active reminder ----------
   if (reminderActive && !reminderAcknowledged) {
 
-    // Upper-left button acknowledges reminder
+    // Reminder takes priority over menu controls.
     if (upperPressed) {
       acknowledgeReminder();
     }
@@ -123,34 +122,42 @@ void loop() {
         lastBeepTime = currentTime;
       }
     }
+
+    // Don't process menu buttons while reminder is active.
+    return;
   }
 
   // ---------- Menu controls ----------
   if (currentScreen == MAIN_SCREEN) {
     if (lowerPressed) {
-      currentScreen = MENU_SCREEN;
       menuIndex = 0;
+      currentScreen = MENU_SCREEN;
       showMenu();
     }
   }
 
   else if (currentScreen == MENU_SCREEN) {
+
+    // Lower-left: scroll to the next menu option
     if (lowerPressed) {
       menuIndex++;
+
+      // Wrap to first option after the last one
       if (menuIndex >= MENU_COUNT) {
         menuIndex = 0;
       }
+
       showMenu();
     }
 
+    // Upper-left: execute selected option
     if (upperPressed) {
       selectMenuItem();
     }
   }
 
-  // Return to menu from information screens
-  else if (currentScreen != MAIN_SCREEN &&
-           currentScreen != MENU_SCREEN) {
+  // Lower-left returns from information screens to menu
+  else {
     if (lowerPressed) {
       currentScreen = MENU_SCREEN;
       showMenu();
@@ -227,7 +234,7 @@ void showMainScreen() {
   display.print("in 30 seconds");
 
   display.setCursor(0, 52);
-  display.print("Menu: lower btn");
+  display.print("Menu");
 }
 
 // ---------- Menu screen ----------
@@ -235,18 +242,25 @@ void showMenu() {
   display.clearScreen();
   display.fontColor(0xFFFF, 0x0000);
 
-  display.setCursor(0, 2);
+  display.setCursor(0, 0);
   display.print("MENU");
 
-  display.setCursor(0, 20);
-  display.print("> ");
-  display.print(menuItems[menuIndex]);
+  // Display all menu options
+  for (int i = 0; i < MENU_COUNT; i++) {
+    int y = 12 + (i * 9);
 
-  display.setCursor(0, 45);
-  display.print("Lower: next");
+    display.setCursor(0, y);
 
-  display.setCursor(0, 57);
-  display.print("Upper: select");
+    if (i == menuIndex) {
+      display.print(">");
+    } else {
+      display.print(" ");
+    }
+
+    display.print(menuItems[i]);
+  }
+
+  // Button instructions are omitted here so all options fit.
 }
 
 // ---------- Next reminder ----------
@@ -264,7 +278,7 @@ void showNextReminderScreen() {
   display.print("Test: 30 sec");
 
   display.setCursor(0, 55);
-  display.print("Lower: back");
+  display.print("Back");
 }
 
 // ---------- Medication list ----------
@@ -282,7 +296,7 @@ void showMedicationScreen() {
   display.print("Reminder set");
 
   display.setCursor(0, 55);
-  display.print("Lower: back");
+  display.print("Back");
 }
 
 // ---------- Device information ----------
@@ -297,10 +311,10 @@ void showDeviceInfoScreen() {
   display.print("Meds Keychain");
 
   display.setCursor(0, 38);
-  display.print("Prototype 2");
+  display.print("Prototype 3");
 
   display.setCursor(0, 55);
-  display.print("Lower: back");
+  display.print("Back");
 }
 
 // ---------- Reminder screen ----------
@@ -321,7 +335,7 @@ void showReminderScreen() {
   display.print("your medication");
 
   display.setCursor(0, 55);
-  display.print("Upper: stop");
+  display.print("Stop");
 }
 
 // ---------- Acknowledged screen ----------
