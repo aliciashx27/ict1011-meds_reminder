@@ -87,3 +87,197 @@ pre{background:var(--card);border:1px solid var(--line);border-radius:var(--r);p
   <div id="history"></div>
 
   <details>
+    <summary>Debug tools</summary>
+    <div style="margin-top:12px">
+      <label for="raw">Send a raw line</label>
+      <input id="raw" type="text" placeholder="L">
+      <div class="actions"><button id="sendRaw" type="button">Send</button></div>
+      <pre id="log"></pre>
+    </div>
+  </details>
+
+  <p class="foot">This is a reminder tool, not medical advice. Follow the instructions from your doctor or pharmacist.</p>
+</main>
+<div id="toast" role="status"></div>
+
+<script>
+// Based on the Web Bluetooth API and the Nordic UART service pattern.
+// Firmware side: TinyCircuits STBLE UART example. Add links to every source you use here.
+// UUIDs are the standard Nordic UART ones; verify them against the keychain with a BLE scanner.
+const SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+const RX = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+const TX = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const $ = id => document.getElementById(id);
+
+function el(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  for (const k in (attrs || {})) e.setAttribute(k, attrs[k]);
+  kids.forEach(c => e.append(c));
+  return e;
+}
+function log(m) { const p = $('log'); p.textContent += m + '\n'; p.scrollTop = p.scrollHeight; }
+let toastTimer;
+function toast(m) {
+  const t = $('toast'); t.textContent = m; t.style.display = 'block';
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.style.display = 'none', 3500);
+}
+
+// ---- Data layer (Person 4): swap the storage later without touching the screens ----
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { log('storage error: ' + e); } }
+};
+const data = {
+  listMeds() { return store.get('meds', []).sort((a, b) => a.time.localeCompare(b.time)); },
+  addMed(m) {
+    const meds = store.get('meds', []);
+    const used = new Set(meds.map(x => x.id));
+    let id = 1; while (used.has(id)) id++;
+    meds.push({ ...m, id }); store.set('meds', meds); return id;
+  },
+  deleteMed(id) {
+    store.set('meds', store.get('meds', []).filter(m => m.id !== id));
+    store.set('pendingDeletes', [...store.get('pendingDeletes', []), id]);
+  },
+  getHistory() { return store.get('history', []); },
+  addTaken(id, ts) { store.set('history', [{ id, ts }, ...store.get('history', [])].slice(0, 50)); }
+};
+
+// ---- Bluetooth layer (Person 2) ----
+let rx = null, waiter = null, inbox = '';
+const ble = {
+  async connect() {
+    if (!navigator.bluetooth) throw new Error('Web Bluetooth is not available. Open this page in Bluefy.');
+    const device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: [SERVICE] });
+    device.addEventListener('gattserverdisconnected', () => { rx = null; setStatus(false); });
+    const server = await device.gatt.connect();
+    const svc = await server.getPrimaryService(SERVICE);
+    rx = await svc.getCharacteristic(RX);
+    const tx = await svc.getCharacteristic(TX);
+    await tx.startNotifications();
+    tx.addEventListener('characteristicvaluechanged', e => onChunk(new TextDecoder().decode(e.target.value)));
+    setStatus(true);
+  },
+  async write(line) {
+    const bytes = new TextEncoder().encode(line + '\n');
+    for (let i = 0; i < bytes.length; i += 20) await rx.writeValue(bytes.slice(i, i + 20));
+  }
+};
+function onChunk(chunk) {
+  inbox += chunk; let i;
+  while ((i = inbox.indexOf('\n')) >= 0) {
+    const line = inbox.slice(0, i).trim(); inbox = inbox.slice(i + 1);
+    if (line) onLine(line);
+  }
+}
+function onLine(line) {
+  log('keychain: ' + line);
+  const p = line.split(',');
+  if (p[0] === 'K') { data.addTaken(Number(p[1]), Number(p[2])); render(); toast('Dose taken: recorded'); }
+  else if ((p[0] === 'OK' || p[0] === 'ERR') && waiter) waiter(line);
+}
+function sendCmd(line) {
+  return new Promise(async res => {
+    const t = setTimeout(() => { waiter = null; res('timeout'); }, 1500);
+    waiter = r => { clearTimeout(t); waiter = null; res(r); };
+    try { await ble.write(line); log('sent: ' + line); }
+    catch (e) { clearTimeout(t); waiter = null; log('write error: ' + e); res('error'); }
+  });
+}
+const dayMask = days => days.reduce((a, d) => a | (1 << d), 0);
+
+async function sync() {
+  if (!rx) { toast('Connect the keychain first'); return; }
+  let bad = 0;
+  const run = async l => { const r = await sendCmd(l); if (!r.startsWith('OK')) bad++; };
+  // The keychain shows local time, so send the local clock as a Unix-style number.
+  await run('T,' + (Math.floor(Date.now() / 1000) - new Date().getTimezoneOffset() * 60));
+  for (const id of store.get('pendingDeletes', [])) await run('D,' + id);
+  store.set('pendingDeletes', []);
+  for (const m of data.listMeds()) {
+    await run(['A', m.id, m.time.replace(':', ''), dayMask(m.days), m.name].join(','));
+    if (m.msg) await run('M,' + m.id + ',' + m.msg);
+  }
+  toast(bad ? 'Synced, but ' + bad + ' command(s) failed. Check the debug log.' : 'Keychain updated');
+}
+
+// ---- Screens (Person 3) ----
+function setStatus(on) {
+  const b = $('status'); b.textContent = on ? 'Connected' : 'Not connected';
+  b.classList.toggle('on', on);
+}
+function nextDose() {
+  const now = new Date(); let best = null;
+  for (const m of data.listMeds()) {
+    const [h, mi] = m.time.split(':').map(Number);
+    for (let d = 0; d < 8; d++) {
+      const t = new Date(now); t.setDate(now.getDate() + d); t.setHours(h, mi, 0, 0);
+      if (t > now && m.days.includes(t.getDay())) { if (!best || t < best.t) best = { m, t }; break; }
+    }
+  }
+  return best;
+}
+function render() {
+  const n = nextDose();
+  $('nextTime').textContent = n ? n.m.time : '--:--';
+  $('nextName').textContent = n ? n.m.name + (n.m.msg ? ': ' + n.m.msg : '') : 'Add a medication to begin';
+
+  const list = $('list'); list.replaceChildren();
+  const meds = data.listMeds();
+  if (!meds.length) list.append(el('p', { class: 'empty' }, 'No medications yet. Add your first one below.'));
+  meds.forEach(m => {
+    const del = el('button', { class: 'small', type: 'button', 'aria-label': 'Delete ' + m.name }, 'Delete');
+    del.onclick = () => { data.deleteMed(m.id); render(); toast('Deleted. Sync to update the keychain.'); };
+    list.append(el('div', { class: 'row' },
+      el('div', { class: 'grow' }, el('b', {}, m.name),
+        el('span', {}, m.days.length === 7 ? 'Every day' : m.days.map(d => DAYS[d]).join(' ') + (m.msg ? ' · ' + m.msg : ''))),
+      el('div', { class: 'time' }, m.time), del));
+  });
+
+  const h = $('history'); h.replaceChildren();
+  const hist = data.getHistory();
+  if (!hist.length) h.append(el('p', { class: 'empty' }, 'Doses you confirm on the keychain will appear here.'));
+  hist.slice(0, 10).forEach(x => {
+    const med = data.listMeds().find(m => m.id === x.id);
+    // The keychain clock holds local time, so read it back as UTC to show the same digits.
+    const when = new Date(x.ts * 1000).toISOString().slice(0, 16).replace('T', ' ');
+    h.append(el('div', { class: 'row' }, el('div', { class: 'grow' }, el('b', {}, med ? med.name : 'Medication ' + x.id)), el('span', {}, when)));
+  });
+}
+
+DAYS.forEach((d, i) => {
+  const cb = el('input', { type: 'checkbox', value: i });
+  $('days').append(el('label', {}, cb, el('span', {}, d)));
+});
+$('save').onclick = () => {
+  const name = $('name').value.replace(/[,\n]/g, '').trim().slice(0, 8);
+  const time = $('time').value;
+  const days = [...document.querySelectorAll('#days input:checked')].map(c => Number(c.value));
+  const msg = $('msg').value.replace(/[,\n]/g, '').trim().slice(0, 16);
+  const err = $('err');
+  if (!name) { err.textContent = 'Enter a name for the medication.'; return; }
+  if (!time) { err.textContent = 'Choose a time.'; return; }
+  if (!days.length) { err.textContent = 'Pick at least one day.'; return; }
+  err.textContent = '';
+  data.addMed({ name, time, days, msg });
+  $('name').value = ''; $('msg').value = '';
+  document.querySelectorAll('#days input').forEach(c => c.checked = false);
+  render(); toast('Saved. Tap Sync keychain to send it.');
+};
+async function doConnect() {
+  try { await ble.connect(); toast('Keychain connected'); }
+  catch (e) { log('connect error: ' + e.message); toast(e.message); }
+}
+$('connect').onclick = doConnect;
+$('status').onclick = doConnect;
+$('sync').onclick = sync;
+$('sendRaw').onclick = async () => {
+  if (!rx) { toast('Connect the keychain first'); return; }
+  const v = $('raw').value.trim(); if (v) log('reply: ' + await sendCmd(v));
+};
+render();
+setInterval(render, 60000);
+</script>
+</body>
+</html>
