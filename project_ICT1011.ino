@@ -1,6 +1,6 @@
 
 /************************************************************************
- * Meds Reminder Keychain - Prototype 3
+ * Meds Reminder Keychain - Prototype
  * TinyScreen+ + WiFi TinyShield ASD2123-R + Buzzer Wireling on A1
  *
  * Buttons:
@@ -48,6 +48,9 @@ bool timeSynced = false;
 
 unsigned long lastSyncMillis = 0;
 const unsigned long SYNC_INTERVAL = 6UL * 60UL * 60UL * 1000UL;
+// Refresh the main screen once per second
+unsigned long lastScreenUpdate = 0;
+const unsigned long SCREEN_UPDATE_INTERVAL = 1000;
 
 // ---------- Medication details ----------
 const char medicationName[] = "Vitamin C";
@@ -172,6 +175,15 @@ void loop() {
   if (timeSynced && !reminderActive) {
     checkMedicationSchedule();
   }
+
+  // ---------- Refresh main screen clock ----------
+  if (currentScreen == MAIN_SCREEN &&
+    !reminderActive &&
+    currentTime - lastScreenUpdate >= SCREEN_UPDATE_INTERVAL) {
+
+  lastScreenUpdate = currentTime;
+  showMainScreen();
+}
 
   // ---------- Handle active reminder ----------
   if (reminderActive && !reminderAcknowledged) {
@@ -375,8 +387,10 @@ bool syncTimeFromNTP() {
       // Convert UTC to Singapore time (UTC+8)
       rtc.setEpoch(utcEpoch + SINGAPORE_OFFSET);
 
-      SerialUSB.println("Time synchronised!");
+      // Set this BEFORE printing the time
+      timeSynced = true;
 
+      SerialUSB.println("Time synchronised!");
       printCurrentTime();
 
       return true;
