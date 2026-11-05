@@ -87,7 +87,7 @@ const char* menuItems[] = {
   "Next Reminder",
   "Meds List",
   "Set Time",
-  "Test Buzzer",
+  "Test Reminder",
   "Device Info",
   "Back"
 };
@@ -176,12 +176,12 @@ void loop() {
 
   // ---------- Refresh main screen clock ----------
   if (currentScreen == MAIN_SCREEN &&
-    !reminderActive &&
-    currentTime - lastScreenUpdate >= SCREEN_UPDATE_INTERVAL) {
+      !reminderActive &&
+      currentTime - lastScreenUpdate >= SCREEN_UPDATE_INTERVAL) {
 
-  lastScreenUpdate = currentTime;
-  showMainScreen();
-}
+    lastScreenUpdate = currentTime;
+    showMainScreen();
+  }
 
   // ---------- Handle active reminder ----------
   if (reminderActive && !reminderAcknowledged) {
@@ -193,7 +193,6 @@ void loop() {
 
     // Buzzer pattern
     if (!reminderAcknowledged) {
-
       if (buzzerOn &&
           currentTime - lastBeepTime >= BEEP_ON_TIME) {
 
@@ -201,7 +200,6 @@ void loop() {
         buzzerOn = false;
         lastBeepTime = currentTime;
       }
-
       else if (!buzzerOn &&
                currentTime - lastBeepTime >= BEEP_OFF_TIME) {
 
@@ -211,11 +209,11 @@ void loop() {
       }
     }
 
-    // Do not process menu buttons during an active reminder
+    // Don't process menu buttons while reminder is active
     return;
   }
 
-  // ---------- Menu controls ----------
+  // ---------- Main screen / menu controls ----------
   if (currentScreen == MAIN_SCREEN) {
 
     if (lowerPressed) {
@@ -257,7 +255,6 @@ void loop() {
           scheduleHour = 0;
         }
       }
-
       else {
         scheduleMinute++;
 
@@ -273,21 +270,34 @@ void loop() {
     if (upperPressed) {
 
       if (scheduleEditField == 0) {
+        // Move from hour to minute
         scheduleEditField = 1;
         showScheduleScreen();
       }
-
       else {
+        // Save the new schedule
         scheduleEditField = 0;
+
+        // Allow another reminder later today
+        lastReminderDay = 0;
+
         currentScreen = MENU_SCREEN;
         showMenu();
+
+        SerialUSB.print("New medication schedule: ");
+
+        if (scheduleHour < 10) SerialUSB.print("0");
+        SerialUSB.print(scheduleHour);
+        SerialUSB.print(":");
+
+        if (scheduleMinute < 10) SerialUSB.print("0");
+        SerialUSB.println(scheduleMinute);
       }
     }
   }
 
   // ---------- Return from information screens ----------
   else {
-
     if (lowerPressed) {
       currentScreen = MENU_SCREEN;
       showMenu();
