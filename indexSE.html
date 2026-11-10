@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meds Keychain</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+/* Original website styling */
+:root {
+  --cream: #f7f5ef;
+  --sage: #a8bda0;
+  --sage-dark: #718b68;
+  --sage-light: #e8eee4;
+  --ink: #30382e;
+  --muted: #899184;
+  --white: #fff;
+  --border: #e5e7df;
+  --red: #c76f68;
+  --shadow: 0 4px 20px rgba(48,56,46,.06);
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  background:var(--cream);
+  color:var(--ink);
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh;
+}
+button,input,select { font:inherit; }
+button { cursor:pointer; }
+.app { max-width:480px; margin:auto; min-height:100vh; padding-bottom:90px; }
+header {
+  padding:28px 22px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.logo { font-family:'DM Serif Display',serif; font-size:27px; }
+.logo span { color:var(--sage-dark); }
+.header-status {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:11px;
+  color:var(--muted);
+}
+.status-dot {
+  width:8px;height:8px;border-radius:50%;
+  background:#d4a45c;
+}
+.status-dot.connected { background:#79a878; }
+.status-dot.error { background:var(--red); }
+main { padding:0 18px; }
+.page { display:none; }
+.page.active { display:block; }
+.section-title {
+  font-family:'DM Serif Display',serif;
+  font-size:25px;
+  margin:15px 0 5px;
+}
+.section-subtitle { font-size:12px;color:var(--muted);margin-bottom:20px; }
+.card {
+  background:var(--white);
+  border-radius:18px;
+  padding:19px;
+  margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+.card-label {
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:1.2px;
+  color:var(--muted);
+  font-weight:700;
+  margin-bottom:9px;
+}
+.next-card {
+  background:var(--sage-light);
+  border-radius:20px;
+  padding:22px;
+  margin-bottom:15px;
+}
+.next-name { font-family:'DM Serif Display',serif;font-size:25px; }
+.next-time { color:var(--sage-dark);font-size:14px;margin-top:5px; }
+.countdown { font-size:12px;color:var(--muted);margin-top:12px; }
+.stats { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px; }
+.stat-card { background:white;border-radius:16px;padding:16px;box-shadow:var(--shadow); }
+.stat-number { font-family:'DM Serif Display',serif;font-size:28px; }
+.stat-label { font-size:11px;color:var(--muted);margin-top:3px; }
+.progress-track { height:7px;background:#e9ebe4;border-radius:10px;overflow:hidden;margin-top:10px; }
+.progress-fill { height:100%;background:var(--sage-dark);border-radius:10px; }
+.med-row {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 0;border-bottom:1px solid var(--border);
+}
+.med-row:last-child { border-bottom:0; }
+.med-name { font-weight:600;font-size:14px; }
+.med-detail { font-size:11px;color:var(--muted);margin-top:3px; }
+.med-time { font-size:13px;font-weight:600; }
+.pill {
+  display:inline-block;padding:5px 9px;border-radius:20px;
+  font-size:10px;font-weight:700;
+}
+.pill.pending { background:#f6eedc;color:#a17a36; }
+.pill.taken { background:#e5efe3;color:#62805d; }
+.pill.missed { background:#f5e5e3;color:#b56d66; }
+.btn {
+  border:0;border-radius:12px;padding:12px 17px;
+  background:var(--sage-dark);color:white;font-weight:600;font-size:13px;
+}
+.btn.secondary { background:var(--sage-light);color:var(--sage-dark); }
+.btn.danger { background:#f5e5e3;color:#b56d66; }
+.btn.full { width:100%; }
+.btn:disabled { opacity:.5;cursor:not-allowed; }
+.form-group { margin-bottom:15px; }
+.form-group label {
+  display:block;font-size:11px;font-weight:700;
+  color:var(--muted);margin-bottom:7px;
+}
+.form-group input,.form-group select {
+  width:100%;padding:12px 13px;border:1px solid var(--border);
+  border-radius:11px;background:#fff;color:var(--ink);outline:none;
+}
+.form-group input:focus,.form-group select:focus { border-color:var(--sage-dark); }
+.days { display:flex;gap:6px;flex-wrap:wrap; }
+.day-btn {
+  border:1px solid var(--border);background:white;color:var(--muted);
+  width:37px;height:37px;border-radius:50%;font-size:11px;
+}
+.day-btn.selected { background:var(--sage-dark);color:white;border-color:var(--sage-dark); }
+.form-actions { display:flex;gap:9px;margin-top:18px; }
+.form-actions button { flex:1; }
+.empty { text-align:center;padding:30px 15px;color:var(--muted);font-size:13px; }
+nav {
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:100%;max-width:480px;background:rgba(255,255,255,.96);
+  border-top:1px solid var(--border);display:flex;
+  justify-content:space-around;padding:11px 8px 17px;z-index:10;
+}
+.nav-item {
+  background:none;border:0;color:var(--muted);font-size:10px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.nav-item .nav-icon { font-size:19px; }
+.nav-item.active { color:var(--sage-dark);font-weight:700; }
+.device-icon {
+  width:55px;height:55px;border-radius:16px;
+  background:var(--sage-light);display:flex;align-items:center;
+  justify-content:center;font-size:26px;margin-bottom:13px;
+}
+.device-status { display:flex;align-items:center;gap:9px;font-size:13px; }
+.device-status .status-dot { flex-shrink:0; }
+.info-row {
+  display:flex;justify-content:space-between;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--border);font-size:12px;
+}
+.info-row:last-child { border-bottom:0; }
+.info-row span:first-child { color:var(--muted); }
+.toast {
+  position:fixed;bottom:85px;left:50%;transform:translateX(-50%);
+  background:var(--ink);color:white;padding:12px 18px;
+  border-radius:12px;font-size:12px;z-index:20;
+  opacity:0;pointer-events:none;transition:.25s;
+}
+.toast.show { opacity:1; }
+.modal-backdrop {
+  position:fixed;inset:0;background:rgba(30,40,30,.35);
+  display:none;align-items:center;justify-content:center;
+  padding:20px;z-index:30;
+}
+.modal-backdrop.show { display:flex; }
+.modal {
+  background:var(--cream);border-radius:20px;padding:22px;
+  width:100%;max-width:420px;max-height:85vh;overflow:auto;
+}
+.modal h2 { font-family:'DM Serif Display',serif;font-size:23px;margin-bottom:17px; }
+.small-note { color:var(--muted);font-size:11px;line-height:1.6; }
+@media(min-width:600px) {
+  body { padding:20px 0; }
+  .app { background:var(--cream);border-radius:22px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="logo">meds<span>keychain</span></div>
+    <div class="header-status">
+      <span class="status-dot" id="headerStatusDot"></span>
+      <span id="headerStatusText">Local mode</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section class="page active" id="page-home">
+      <div class="section-title">Good day!</div>
+      <div class="section-subtitle" id="todayDate"></div>
+
+      <div class="next-card">
+        <div class="card-label">Next medication</div>
+        <div class="next-name" id="nextMedicationName">No upcoming medication</div>
+        <div class="next-time" id="nextMedicationTime">Add a medication to get started</div>
+        <div class="countdown" id="nextCountdown"></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-number" id="scheduledCount">0</div>
+          <div class="stat-label">Scheduled today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="takenCount">0</div>
+          <div class="stat-label">Taken today</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="card-label" style="margin:0">Today's progress</div>
+          <div style="font-size:12px;font-weight:700" id="progressPercent">0%</div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Today's medications</div>
+        <div id="todayMedicationList"></div>
+      </div>
+    </section>
+
+    <!-- MEDICINES -->
+    <section class="page" id="page-medicines">
+      <div class="section-title">My medicines</div>
+      <div class="section-subtitle">Manage your medication reminders.</div>
+      <button class="btn full" onclick="openMedicationModal()">＋ Add medication</button>
+      <div class="card" style="margin-top:15px">
+        <div id="medicationList"></div>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section class="page" id="page-history">
+      <div class="section-title">History</div>
+      <div class="section-subtitle">Your medication activity.</div>
+      <div class="card">
+        <div id="historyList"></div>
+      </div>
+    </section>
+
+    <!-- DEVICE -->
+    <section class="page" id="page-device">
+      <div class="section-title">My device</div>
+      <div class="section-subtitle">Manage your Meds Keychain connection.</div>
+
+      <div class="card">
+        <div class="device-icon">⌁</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:21px;margin-bottom:8px">Meds Keychain</div>
+        <div class="device-status">
+          <span class="status-dot" id="deviceStatusDot"></span>
+          <span id="deviceStatusText">Not connected to cloud</span>
+        </div>
+        <div class="small-note" style="margin-top:10px">
+          Your website synchronises medication information through your cloud backend.
+          The TinyCircuits device connects to the same backend over Wi-Fi.
+        </div>
+        <button class="btn full" style="margin-top:17px" id="syncButton" onclick="sync()">Sync now</button>
+        <button class="btn secondary full" style="margin-top:9px" onclick="checkConnection()">Check connection</button>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Sync information</div>
+        <div class="info-row"><span>Connection</span><strong id="connectionInfo">Local only</strong></div>
+        <div class="info-row"><span>Last sync</span><strong id="lastSyncInfo">Never</strong></div>
+        <div class="info-row"><span>Medications stored</span><strong id="deviceMedCount">0</strong></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">How it works</div>
+        <p class="small-note">
+          1. Add or edit medication details on this website.<br><br>
+          2. The website sends the information to your cloud backend.<br><br>
+          3. Your TinyCircuits device retrieves the latest medication information through Wi-Fi.<br><br>
+          4. The device updates its screen and reminder schedule.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Developer information</div>
+        <p class="small-note">
+          Backend API settings are configured in the JavaScript section of this HTML file.
+          The backend must provide the API routes used by this website.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <nav>
+    <button class="nav-item active" onclick="showPage('home',this)">
+      <span class="nav-icon">⌂</span>Home
+    </button>
+    <button class="nav-item" onclick="showPage('medicines',this)">
+      <span class="nav-icon">▤</span>Medicines
+    </button>
+    <button class="nav-item" onclick="showPage('history',this)">
+      <span class="nav-icon">◷</span>History
+    </button>
+    <button class="nav-item" onclick="showPage('device',this)">
+      <span class="nav-icon">⌁</span>My Device
+    </button>
+  </nav>
+</div>
+
+<!-- MEDICATION MODAL -->
+<div class="modal-backdrop" id="medicationModal">
+  <div class="modal">
+    <h2 id="modalTitle">Add medication</h2>
+    <div class="form-group">
+      <label>Medication name (maximum 20 characters)</label>
+      <input id="medName" maxlength="20" placeholder="e.g. Vitamin C">
+    </div>
+    <div class="form-group">
+      <label>Reminder time</label>
+      <input id="medTime" type="time" value="08:00">
+    </div>
+    <div class="form-group">
+      <label>Repeat on</label>
+      <div class="days" id="daySelector">
+        <button class="day-btn selected" data-day="0" onclick="toggleDay(this)">S</button>
+        <button class="day-btn selected" data-day="1" onclick="toggleDay(this)">M</button>
+        <button class="day-btn selected" data-day="2" onclick="toggleDay(this)">T</button>
+        <button class="day-btn selected" data-day="3" onclick="toggleDay(this)">W</button>
+        <button class="day-btn selected" data-day="4" onclick="toggleDay(this)">T</button>
+        <button class="day-btn selected" data-day="5" onclick="toggleDay(this)">F</button>
+        <button class="day-btn selected" data-day="6" onclick="toggleDay(this)">S</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Keychain message (maximum 16 characters)</label>
+      <input id="medMessage" maxlength="16" placeholder="Time for meds!">
+    </div>
+    <div class="form-actions">
+      <button class="btn secondary" onclick="closeMedicationModal()">Cancel</button>
+      <button class="btn" onclick="saveMedication()">Save medication</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js" defer></script>
+</body>
+</html>
