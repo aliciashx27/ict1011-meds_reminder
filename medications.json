@@ -1,0 +1,17 @@
+[
+  {
+    "id": "2fbe76c2-f236-45ea-b2f1-df349854ec84",
+    "name": "AAA",
+    "time": "08:00",
+    "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "message": "Time for meds!"
+  }
+]
