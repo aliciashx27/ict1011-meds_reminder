@@ -1,5 +1,5 @@
 /* =========================================================
-   MEDS KEYCHAIN - WEBSITE CLOUD API CONFIGURATION
+   MEDS KEYCHAIN - WEBSITE API CONFIGURATION
    ========================================================= */
 
 /*
@@ -18,7 +18,8 @@ const API_BASE_URL = window.location.origin;
 const API = {
   health: '/api/health',
   medications: '/api/medications',
-  doseHistory: '/api/dose-history'
+  doseHistory: '/api/dose-history',
+  pet: '/api/pet'
 };
 
 /* =========================================================
@@ -30,8 +31,14 @@ let pendingDeletes = JSON.parse(localStorage.getItem('pendingDeletes') || '[]');
 let history = JSON.parse(localStorage.getItem('history') || '[]');
 let lastSync = localStorage.getItem('lastSync') || null;
 
+let pet = {
+    petId: 'tv',
+    growthPoints: 0,
+    growthStage: 'baby'
+};
+
 let editingMedicationId = null;
-let cloudConnected = false;
+let statusConnected = false;
 let syncInProgress = false;
 
 function saveLocalData() {
@@ -88,8 +95,8 @@ async function apiRequest(path, options = {}) {
    CONNECTION STATUS
    ========================================================= */
 
-function setCloudStatus(connected, message = '') {
-  cloudConnected = connected;
+function setStatus(connected, message = '') {
+  statusConnected = connected;
 
   const headerDot = document.getElementById('headerStatusDot');
   const headerText = document.getElementById('headerStatusText');
@@ -105,8 +112,8 @@ function setCloudStatus(connected, message = '') {
     deviceText.textContent = 'Backend not configured';
     connectionInfo.textContent = 'Local only';
   } else if (connected) {
-    headerText.textContent = 'Cloud connected';
-    deviceText.textContent = 'Cloud backend connected';
+    headerText.textContent = 'DB connected';
+    deviceText.textContent = 'Backend connected';
     connectionInfo.textContent = 'Connected';
   } else {
     headerText.textContent = 'Offline';
@@ -117,18 +124,18 @@ function setCloudStatus(connected, message = '') {
 
 async function checkConnection() {
   if (!apiConfigured()) {
-    setCloudStatus(false);
+    setStatus(false);
     showToast('Backend URL has not been configured yet.');
     return false;
   }
 
   try {
     await apiRequest(API.health);
-    setCloudStatus(true);
-    showToast('Cloud backend connected!');
+    setStatus(true);
+    showToast('Backend connected!');
     return true;
   } catch (error) {
-    setCloudStatus(false, 'Connection failed');
+    setStatus(false, 'Connection failed');
     showToast('Unable to connect to backend.');
     console.error('Connection check failed:', error);
     return false;
@@ -162,7 +169,7 @@ function normaliseHistory(item) {
 }
 
 /* =========================================================
-   MEDICATION CLOUD OPERATIONS
+   MEDICATION OPERATIONS
    ========================================================= */
 
 async function uploadMedication(medication) {
@@ -174,7 +181,7 @@ async function uploadMedication(medication) {
   });
 }
 
-async function deleteMedicationFromCloud(id) {
+async function deleteMedicationFromBackend(id) {
   const path = `${API.medications}/${encodeURIComponent(id)}`;
 
   return apiRequest(path, {
@@ -182,7 +189,7 @@ async function deleteMedicationFromCloud(id) {
   });
 }
 
-async function fetchMedicationsFromCloud() {
+async function fetchMedications() {
   const result = await apiRequest(API.medications);
 
   if (Array.isArray(result)) return result;
@@ -194,7 +201,7 @@ async function fetchMedicationsFromCloud() {
   return [];
 }
 
-async function fetchHistoryFromCloud() {
+async function fetchHistory() {
   const result = await apiRequest(API.doseHistory);
 
   if (Array.isArray(result)) return result;
@@ -206,15 +213,67 @@ async function fetchHistoryFromCloud() {
   return [];
 }
 
+async function fetchPet() {
+    const result = await apiRequest(API.pet);
+
+    pet = {
+        petId: result.petId || 'tv',
+        growthPoints: Number(result.growthPoints) || 0,
+        growthStage: result.growthStage || 'baby'
+    };
+
+    renderPet();
+}
+
+async function selectPet() {
+    const selectedPet = document.getElementById('petSelection').value;
+
+    try {
+        const result = await apiRequest(API.pet, {
+            method: 'PUT',
+            body: JSON.stringify({
+                petId: selectedPet
+            })
+        });
+
+        pet.petId = result.petId;
+
+        showToast('Pet updated successfully!');
+        renderPet();
+
+    } catch (error) {
+        console.error('Pet update failed:', error);
+        showToast('Failed to update pet.');
+    }
+}
+
+async function refreshHistory() {
+  if (!apiConfigured()) return;
+
+  try {
+    const getHistory = await fetchHistory();
+
+    history = getHistory.map(normaliseHistory);
+
+    saveLocalData();
+
+    renderHistory();
+    renderHome();
+
+  } catch (error) {
+    console.error('History refresh failed:', error);
+  }
+}
+
 /* =========================================================
-   CLOUD SYNCHRONISATION
+   SYNCHRONISATION
    ========================================================= */
 
 async function sync() {
   if (syncInProgress) return;
 
   if (!apiConfigured()) {
-    setCloudStatus(false);
+    setStatus(false);
     showToast('Add your backend URL before syncing.');
     return;
   }
@@ -231,7 +290,7 @@ async function sync() {
 
     // Process medication deletions waiting to sync.
     for (const id of [...pendingDeletes]) {
-      await deleteMedicationFromCloud(id);
+      await deleteMedicationFromBackend(id);
       pendingDeletes = pendingDeletes.filter(item => item !== id);
       saveLocalData();
     }
@@ -242,25 +301,28 @@ async function sync() {
     }
 
     // Download the latest medication information.
-    const cloudMedications = await fetchMedicationsFromCloud();
+    const getMedications = await fetchMedications();
 
-    meds = cloudMedications.map(normaliseMedication);
+    meds = getMedications.map(normaliseMedication);
 
     // Download medication history.
-    const cloudHistory = await fetchHistoryFromCloud();
+    const getHistory = await fetchHistory();
 
-    history = cloudHistory.map(normaliseHistory);
+    history = getHistory.map(normaliseHistory);
+
+    // Download pet information.
+    await fetchPet();
 
     lastSync = new Date().toISOString();
 
     saveLocalData();
-    setCloudStatus(true);
+    setStatus(true);
 
     render();
     showToast('Synchronisation successful!');
   } catch (error) {
     console.error('Synchronisation error:', error);
-    setCloudStatus(false, 'Sync failed');
+    setStatus(false, 'Sync failed');
     showToast('Sync failed. Please check your connection.');
   } finally {
     syncInProgress = false;
@@ -271,7 +333,7 @@ async function sync() {
 }
 
 /* =========================================================
-   AUTOMATIC CLOUD UPLOAD AFTER MEDICATION CHANGES
+   AUTOMATIC UPLOAD AFTER MEDICATION CHANGES
    ========================================================= */
 
 async function syncMedicationAfterChange(medication) {
@@ -279,14 +341,14 @@ async function syncMedicationAfterChange(medication) {
 
   try {
     await uploadMedication(medication);
-    setCloudStatus(true);
+    setStatus(true);
     lastSync = new Date().toISOString();
     saveLocalData();
     updateDeviceInformation();
   } catch (error) {
     console.error('Medication upload failed:', error);
-    showToast('Saved locally. Cloud upload failed.');
-    setCloudStatus(false, 'Upload failed');
+    showToast('Saved locally. Upload failed.');
+    setStatus(false, 'Upload failed');
   }
 }
 
@@ -303,9 +365,21 @@ function showPage(page, button) {
   if (button) button.classList.add('active');
 
   if (page === 'device') updateDeviceInformation();
-  if (page === 'home') renderHome();
+  if (page === 'pet') {
+    fetchPet().catch(error => {
+        console.error('Pet fetch failed:', error);
+    });
+}
+  if (page === 'home') {
+  renderHome();
+  refreshHistory();
+}
   if (page === 'medicines') renderMedications();
-  if (page === 'history') renderHistory();
+  
+if (page === 'history') {
+  renderHistory();
+  refreshHistory();
+}
 }
 
 /* =========================================================
@@ -483,6 +557,72 @@ function renderHome() {
 }
 
 /* =========================================================
+   PET DISPLAY
+   ========================================================= */
+
+function renderPet() {
+    const points = pet.growthPoints;
+
+    // Get the selected pet's information.
+    const petTypes = {
+        tv: {
+            name: 'TV',
+            emoji: '📺'
+        },
+        cloud: {
+            name: 'Cloud',
+            emoji: '☁️'
+        },
+        ghost: {
+            name: 'Ghost',
+            emoji: '👻'
+        }
+    };
+
+    const selectedPet = petTypes[pet.petId] || petTypes.tv;
+
+    let stage;
+    let progress;
+
+    if (points >= 10) {
+        stage = 'Adult';
+        progress = 100;
+    } else if (points >= 5) {
+        stage = 'Teen';
+        progress = ((points - 5) / 5) * 100;
+    } else {
+        stage = 'Baby';
+        progress = (points / 5) * 100;
+    }
+
+    // Update pet display.
+    document.getElementById('petDisplay').innerHTML =
+        `<div style="font-size:70px">${selectedPet.emoji}</div>`;
+
+    document.getElementById('petName').textContent =
+        `${stage} ${selectedPet.name}`;
+
+    document.getElementById('petStage').textContent =
+        stage + ' Stage';
+
+    // Update growth progress.
+    document.getElementById('petGrowthText').textContent =
+        points >= 10 ? '10/10' :
+        points >= 5 ? `${points - 5}/5` :
+        `${points}/5`;
+
+    document.getElementById('petGrowthFill').style.width =
+        progress + '%';
+
+    // Update statistics.
+    document.getElementById('petTotalGrowth').textContent = points;
+    document.getElementById('petCurrentStage').textContent = stage;
+
+    // Keep dropdown in sync with the saved selection.
+    document.getElementById('petSelection').value = pet.petId;
+}
+
+/* =========================================================
    MEDICATION LIST
    ========================================================= */
 
@@ -640,14 +780,14 @@ async function deleteMedication(id) {
 
   if (apiConfigured()) {
     try {
-      await deleteMedicationFromCloud(id);
+      await deleteMedicationFromBackend(id);
 
       pendingDeletes = pendingDeletes.filter(item => item !== id);
 
       saveLocalData();
     } catch (error) {
-      console.error('Cloud deletion failed:', error);
-      showToast('Deleted locally. Cloud deletion is pending.');
+      console.error('Deletion failed:', error);
+      showToast('Deletion is pending.');
     }
   }
 }
@@ -713,7 +853,7 @@ async function recordDoseTaken(medicationId) {
       });
     } catch (error) {
       console.error('Dose confirmation upload failed:', error);
-      showToast('Dose saved locally. Cloud upload failed.');
+      showToast('Dose saved locally. Upload failed.');
     }
   }
 }
@@ -769,7 +909,7 @@ function initialiseApp() {
   if (apiConfigured()) {
     checkConnection();
   } else {
-    setCloudStatus(false);
+    setStatus(false);
   }
 }
 
@@ -779,7 +919,7 @@ initialiseApp();
 setInterval(renderHome, 60000);
 
 /* =========================================================
-   OPTIONAL AUTOMATIC CLOUD CHECK
+   OPTIONAL AUTOMATIC CHECK
    ========================================================= */
 
 /*

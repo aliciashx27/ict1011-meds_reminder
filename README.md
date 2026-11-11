@@ -9,3 +9,8 @@ libraries to install (in Arduino):
 - WiFI101 by Arduino
 - TinyScreen by TinyCircuits
 - Wireling by TinyCircuits
+
+start website backend with
+```npm start```
+or
+```npm.cmd start``` (if there is an error)
