@@ -349,7 +349,7 @@ app.get("/api/device/medications", (req, res) => {
 
 // Serve the website
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "indexSE.html"));
+    res.sendFile(path.join(__dirname, "index.html"));
 });
 
 // Serve CSS and other website files
